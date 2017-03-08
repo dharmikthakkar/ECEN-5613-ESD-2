@@ -1,6 +1,8 @@
-#include <reg51.h>
+//#include <reg51.h>
 #include <stdio.h>
-//#incluce <stdlib.h>
+#include <at89c51RC2.h>
+#include <stdlib.h>
+//#include <malloc.h>
 
 void tx_data_char(char tx_data);
 char rx_data_char(void);
@@ -25,10 +27,10 @@ void tx_data_char(char tx_data){
 	//TH1 = -6;
 	//SCON = 0x50;
 	//TR1 = 1;
-	SBUF = tx_data;
+	
 	while(!TI);
 	TI=0;
-	
+	SBUF = tx_data;
 	//goto AGAIN;
 }
 
@@ -53,15 +55,16 @@ char *rx_get_string(void){
 
 void main(){
 	char my_rec_data;
-	//char tx_string[100];
+	//char tx_string[0x1000000];
 	char *tx_string_ptr;
+//	tx_string_ptr = malloc(0x100000);
 	TMOD = 0x20;
 	TH1 = -3;
 	SCON = 0x50;
-	TI=0;
+	TI=1;
 	TR1 = 1;
 	tx_string_ptr=rx_get_string();
 //	my_rec_data = rx_data_char();
 	tx_data_string(tx_string_ptr);
-
+  while(1);
 }
