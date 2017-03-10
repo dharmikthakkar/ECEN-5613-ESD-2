@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <math.h>
 
 #define MAX_BUFS 100
 int putstr (char *s);
@@ -52,6 +53,7 @@ void new_buffer();
 void remove_buffer();
 void buffer_report();
 void hex_report();
+void free_heap();
 
 uint16_t CBLengthData(struct CirBuf *cb);
 void printBuf(struct CirBuf *cb);
@@ -137,7 +139,7 @@ char *rx_get_string(void){
 
 void get_user_commands(void){
 while(1){
-    char message5[300]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r";
+    char message5[320]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r* '@' - To free all buffers and restart\n\r";
 	char user_data;
 	tx_string_ptr = message5;
 	tx_data_string(tx_string_ptr);
@@ -171,13 +173,18 @@ while(1){
         command_char++;
         hex_report();
         break;
-
+    case '@':
+        command_char++;
+        free_heap();
+        goto restart;
+        break;
     default:
         printf_tiny("\rInvalid input. Enter a valid input\n\r");
         break;
         }
     }
     }
+restart:
 }
 
 void lower_case(char user_data){
@@ -344,9 +351,43 @@ void buffer_report(){
 }
 
 void hex_report(){
-     printf_tiny("\rHex_report\n\r");
+     int i=0, j=0, temp=0, temp2=0;
+     printf_tiny("\rHex_Dump\n\r");
+     i=(unsigned long)buffer[0].size;
+     if((i%16)>0){
+        temp2=buffer[0].size/16 +1;
+     }
+     else{
+        temp2 = buffer[0].size/16;
+     }
+     for(i=0; i<temp2; i++){
+        temp = (unsigned int)(buffer[0].buf);
+
+        temp = temp + (i*16);
+        printf("\r%04X: ", temp);
+        //printf_tiny("\r%d: ", temp);
+        for(j=16*i; j<((i*16)+16); j++){
+            printf("%02X  ",*(buffer[0].buf+j));
+        }
+        printf_tiny("\n");
+     }
+     printf("\n");
 }
 
+void free_heap(void){
+    int i=0;
+    printf_tiny("\rYou selected to free all the buffers and restart.\n\rFreeing Buffers and Restarting..\n");
+    for(i=0; i<MAX_BUFS; i++){
+        free(buffer_ptr[i]);
+        buffer_ptr[i]=NULL;
+        if(i<50){
+            buffer[i].buf=0;
+            buffer[i].size=0;
+            buffer[i].read=0;
+            buffer[i].write=0;
+        }
+    }
+}
 
 //gets the buffer state
 eBuffState BufferState(struct CirBuf *cb){
@@ -481,6 +522,7 @@ eBuffState CBRead(struct CirBuf *cb, uint8_t *i_data){
 	cb->buf[cb->read]=0; //to delete the read data
 	if(cb->read < cb->write-1){
        cb->read = (cb->read + 1);
+       return BufferAvailable;
 	}
 	else{
         return BufferEmpty;
@@ -491,94 +533,95 @@ eBuffState CBRead(struct CirBuf *cb, uint8_t *i_data){
 	else
 	{
 		printf_tiny("\rPointer is null\n");
+		return BufferInvalid;
 	}
 }
 
 
 
 void main(){
-	char my_rec_data;
+	//char my_rec_data;
 	char *user_buffer_size;
-	char size_buf_string[25] = "123";
-	int user_buf_size, temp, i=0;
-	//char tx_string[0x1000000];
-	char message1[100]="Please enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n";
-	char message2[50]="Invalid Size. Enter valid size. \r\n";
-	char message3[50]="Size too large. Enter a lower size. \r\n";
-	char message4[50]="Buffers 0 and 1 initialized with Buffer Size: \0";
-//	tx_string_ptr = malloc(0x100000);
-//	tx_string_ptr=rx_get_string();
-//	my_rec_data = rx_data_char();
-    init_dynamic_memory((MEMHEADER xdata *)heap, HEAP_SIZE);
-    printf("Start\n");
-enter_size:	tx_string_ptr = message1;
-//	tx_data_string(tx_string_ptr);
-	printf_tiny("\r%s\n", message1);
-	user_buffer_size=rx_get_string();
-	printf_tiny("\rSize received. %s\n", rx_array);
-  user_buf_size=0;
-	while(rx_array[i] != '\r'){
-	//	strcpy(size_buf_string, rx_array);
-		temp = rx_array[i]-0x30;
-		user_buf_size = 10*user_buf_size+temp;
-		i++;
-	}
-	i=0;
-//		size_buf_string[5] = "123";
-	//user_buf_size=atoi(size_buf_string);
+	while(1){
+        int user_buf_size, temp, i=0;
+        //char tx_string[0x1000000];
+        char message1[110]="Please enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n\0";
+        char message2[50]="Invalid Size. Enter valid size. \r\n";
+        char message3[50]="Size too large. Enter a lower size. \r\n";
+        char message4[50]="Buffers 0 and 1 initialized with Buffer Size: \0";
+    //	tx_string_ptr = malloc(0x100000);
+    //	tx_string_ptr=rx_get_string();
+    //	my_rec_data = rx_data_char();
+        init_dynamic_memory((MEMHEADER xdata *)heap, HEAP_SIZE);
+        printf("\rStart\n");
+    enter_size:	tx_string_ptr = message1;
+    //	tx_data_string(tx_string_ptr);
+        printf_tiny("\r%s\n", message1);
+        user_buffer_size=rx_get_string();
+        printf_tiny("\rSize received. %s\n", rx_array);
+      user_buf_size=0;
+        while(rx_array[i] != '\r'){
+        //	strcpy(size_buf_string, rx_array);
+            temp = rx_array[i]-0x30;
+            user_buf_size = 10*user_buf_size+temp;
+            i++;
+        }
+        i=0;
+    //		size_buf_string[5] = "123";
+        //user_buf_size=atoi(size_buf_string);
 
-	temp=user_buf_size;
+        temp=user_buf_size;
 
-	if((temp % 8 != 0) || (user_buf_size <32) || (user_buf_size >2400)){
-		tx_string_ptr = message2;
-		printf_tiny("\r%s\n", message2);
-	//	tx_data_string(tx_string_ptr);
-		goto enter_size;
-	}
-	printf_tiny("\rsize=%d\n", user_buf_size);
-	buffer_index=0;
-	buffer_ptr[buffer_index++]=malloc((unsigned int)user_buf_size);
-	if(buffer_ptr[0]){
-		buffer_ptr[buffer_index++]=malloc(user_buf_size);
-		if(buffer_ptr[1]){
-//			tx_string_ptr=message4;
-	//		tx_data_string(tx_string_ptr);
-            printf_tiny("\r%s", message4);
-           // printf_tiny("\ruser buffer size = %d\n\r", user_buf_size)
-            buffer[0].buf=buffer_ptr[0];
-            buffer[0].size = (uint16_t)user_buf_size;
-            buffer[0].read = 0;
-            buffer[0].write = 0;
-            buffer[1].buf=buffer_ptr[1];
-            buffer[1].size = (uint16_t)user_buf_size;
-            buffer[1].read = 0;
-            buffer[1].write = 0;
+        if((temp % 8 != 0) || (user_buf_size <32) || (user_buf_size >2400)){
+            tx_string_ptr = message2;
+            printf_tiny("\r%s\n", message2);
+        //	tx_data_string(tx_string_ptr);
+            goto enter_size;
+        }
+        printf_tiny("\rsize=%d\n", user_buf_size);
+        buffer_index=0;
+        buffer_ptr[buffer_index++]=malloc((unsigned int)user_buf_size);
+        if(buffer_ptr[0]){
+            buffer_ptr[buffer_index++]=malloc(user_buf_size);
+            if(buffer_ptr[1]){
+    //			tx_string_ptr=message4;
+        //		tx_data_string(tx_string_ptr);
+                printf_tiny("\r%s", message4);
+               // printf_tiny("\ruser buffer size = %d\n\r", user_buf_size)
+                buffer[0].buf=buffer_ptr[0];
+                buffer[0].size = (uint16_t)user_buf_size;
+                buffer[0].read = 0;
+                buffer[0].write = 0;
+                buffer[1].buf=buffer_ptr[1];
+                buffer[1].size = (uint16_t)user_buf_size;
+                buffer[1].read = 0;
+                buffer[1].write = 0;
 
-//			tx_string_ptr=rx_array;
-	//		tx_data_string(tx_string_ptr);
-            printf_tiny("%d\n", buffer[0].size);
-            i=(unsigned long)buffer[0].buf;
-            printf_tiny("\rBuffer 0 base address = %d\n\r", i);
-            temp=(unsigned long)buffer[1].buf;
-            printf_tiny("\rBuffer 1 base address = %d\n\r", temp);
-			get_user_commands();
-		}
-		else{
-			//tx_string_ptr=message3;
-			//tx_data_string(tx_string_ptr);
-			free(buffer_ptr[0]);
-			printf_tiny("\r%s\n", message3);
-			goto enter_size;
+    //			tx_string_ptr=rx_array;
+        //		tx_data_string(tx_string_ptr);
+                printf_tiny("%d\n", buffer[0].size);
+                i=(unsigned long)buffer[0].buf;
+                printf_tiny("\rBuffer 0 base address = %d\n\r", i);
+                temp=(unsigned long)buffer[1].buf;
+                printf_tiny("\rBuffer 1 base address = %d\n\r", temp);
+                get_user_commands();
+            }
+            else{
+                //tx_string_ptr=message3;
+                //tx_data_string(tx_string_ptr);
+                free(buffer_ptr[0]);
+                printf_tiny("\r%s\n", message3);
+                goto enter_size;
 
-		}
-	}
-	else{
-			//tx_string_ptr=message3;
-			//tx_data_string(tx_string_ptr);
-			printf_tiny("%s\n", message3);
-			goto enter_size;
-	}
-  while(1);
+            }
+        }
+        else{
+                //tx_string_ptr=message3;
+                //tx_data_string(tx_string_ptr);
+                printf_tiny("%s\n", message3);
+                goto enter_size;
+        }
+    }
 }
 
 // The following interrupt service routines are for reference only.
