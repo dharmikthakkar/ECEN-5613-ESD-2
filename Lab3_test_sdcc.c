@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#define MAX_BUFS 100
 int putstr (char *s);
 
 volatile int gg;  // global
@@ -208,7 +209,12 @@ enter_size_1:printf_tiny("\rSpecify buffer's size between 20 and 400\n\r");
 	 }
 	// printf_tiny("\rsize=%d\n", user_buf_size);
 
-
+     for(i=1; i<MAX_BUFS; i++){
+        if(buffer_ptr[i] == NULL){
+            buffer_index=i;
+            break;
+        }
+     }
      buffer_ptr[buffer_index]=malloc(user_buf_size);
 		if(buffer_ptr[buffer_index]){
 //			tx_string_ptr=message4;
@@ -224,11 +230,78 @@ enter_size_1:printf_tiny("\rSpecify buffer's size between 20 and 400\n\r");
             i=(unsigned long)buffer[buffer_index].buf;
             printf_tiny("Buffer %d base address = %d\n\r", buffer_index, i);
             buffer_index++;
+            for(i=MAX_BUFS; i>0; i--){
+                if(buffer_ptr[i] != NULL){
+                buffer_index=i;
+                break;
+                }
+            }
         }
 }
 
 void remove_buffer(){
-     printf_tiny("\rremove buffer\n\r");
+     int user_buf_rem=0, temp;
+     char i;
+     char buf_to_rem[100];
+     printf_tiny("\rYou selected to remove a buffer\n\r");
+     while(1){
+         printf_tiny("\rEnter the buffer number to be freed out of the following:\n\r");
+         buf_to_rem[0]='\0';
+         for(i=1; i<MAX_BUFS; i++){
+            if(buffer_ptr[i] != NULL){
+                tx_data_char((char)i+0x30);
+                buf_to_rem[i-1]=i+0x30;
+                printf_tiny(" ");
+            }
+         }
+
+         printf("\n\r", buf_to_rem[0]);
+
+
+         if((buf_to_rem[0] < 0x31) || (buf_to_rem[0] > 0x39)){
+            printf_tiny("\rNo buffers to remove\n\r");
+            break;
+         }
+
+         printf("\rPress backspace(followed by enter) to exit to menu\n\r");
+         temp=i;
+         printf_tiny("\r\n");
+  //       printf_tiny("\rbuf_to_rem=%s\r\n", buf_to_rem);
+         rx_get_string();
+         if(rx_array[0]==0x08){
+            break;
+         }
+         user_buf_rem=0;
+         temp=0;
+         i=0;
+         while(rx_array[i] != '\r'){
+        //	strcpy(size_buf_string, rx_array);
+            temp = rx_array[i]-0x30;
+            user_buf_rem = 10*user_buf_rem+temp;
+            i++;
+         }
+         i=0;
+         printf_tiny("\rbuffer number enterred=%d\r\n", user_buf_rem);
+         if((buffer_ptr[user_buf_rem] != NULL) && (user_buf_rem !=0)){
+             printf_tiny("\rBuffer number enterred: %d\n\rPress enter to confirm\n\r", user_buf_rem);
+             if(rx_data_char()=='\r'){
+                free(buffer_ptr[user_buf_rem]);
+                buffer[user_buf_rem].buf=buffer_ptr[user_buf_rem];
+                buffer[user_buf_rem].size = 0;
+                buffer[user_buf_rem].read = 0;
+                buffer[user_buf_rem].write = 0;
+                printf_tiny("\rBuffer %d freed\n\r", user_buf_rem);
+                buffer_ptr[user_buf_rem]=NULL;
+               // printf_tiny("\rBuffer_index before removal=%d\n\r", buffer_index);
+                buffer_index=user_buf_rem;
+                //printf_tiny("\rBuffer_index after removal=%d\n\r", buffer_index);
+                break;
+            }
+        }
+        else{
+            printf_tiny("\rInvalid Buffer number. Enter a valid buffer number\r\n");
+        }
+     }
 }
 
 void buffer_report(){
@@ -423,9 +496,9 @@ enter_size:	tx_string_ptr = message1;
 	//		tx_data_string(tx_string_ptr);
             printf_tiny("%d\n", buffer[0].size);
             i=(unsigned long)buffer[0].buf;
-            printf_tiny("Buffer 0 base address = %d\n\r", i);
+            printf_tiny("\rBuffer 0 base address = %d\n\r", i);
             temp=(unsigned long)buffer[1].buf;
-            printf_tiny("Buffer 1 base address = %d\n\r", temp);
+            printf_tiny("\rBuffer 1 base address = %d\n\r", temp);
 			get_user_commands();
 		}
 		else{
