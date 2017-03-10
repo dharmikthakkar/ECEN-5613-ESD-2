@@ -17,6 +17,11 @@
 #else
 #define DEBUGPORT(x)
 #endif // DEBUG
+
+
+void dataout(int x);
+void putstr1 (char *s);
+
 int putstr (char *s);
 int storage_char=0, command_char=0;
 
@@ -51,6 +56,8 @@ eBuffState e_buffer_state = BufferInvalid;
 struct CirBuf buffer[50];
 xdata char *buffer_ptr[100];
 char buffer_index=0;
+
+xdata int *db;
 
 void tx_data_char(char tx_data);
 char rx_data_char(void);
@@ -96,6 +103,14 @@ _sdcc_external_startup()
 	TI=1;
 	TR1 = 1;
 	return 0;
+}
+
+
+void dataout(int x)
+{
+    db=0xFFFF;
+    *db=x;
+    printf_tiny("Executed\n\r");
 }
 
 
@@ -167,6 +182,7 @@ while(1){
         break;
 
     case '-':
+        DEBUGPORT(8)
         command_char++;
         remove_buffer();
         break;
