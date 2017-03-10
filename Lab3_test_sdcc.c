@@ -9,6 +9,7 @@
 
 #define MAX_BUFS 100
 int putstr (char *s);
+int storage_char=0, command_char=0;
 
 volatile int gg;  // global
 
@@ -145,23 +146,29 @@ while(1){
 	tx_data_char(user_data);
 	printf("\n\r");
 	if((user_data >= 'a' && user_data <= 'z') || (user_data >= '0' && user_data <= '9')){
+        storage_char++;
         lower_case(user_data);
 	}
 	else{
       switch(user_data){
     case '+':
+        command_char++;
         new_buffer();
         break;
 
     case '-':
+        command_char++;
         remove_buffer();
         break;
 
     case '?':
         buffer_report();
+        command_char=0;
+        storage_char=0;
         break;
 
     case '=':
+        command_char++;
         hex_report();
         break;
 
@@ -174,7 +181,7 @@ while(1){
 }
 
 void lower_case(char user_data){
-    printf_tiny("\rlower case\n\r");
+  //  printf_tiny("\rlower case\n\r");
     CBWrite(&buffer[0], user_data);
   //  struct CirBuf buffer_0;
 
@@ -305,7 +312,35 @@ void remove_buffer(){
 }
 
 void buffer_report(){
-     printf_tiny("\rbuffer report\n\r");
+     int i=0;
+     int start_address=0, end_address=0;
+     printf_tiny("\rBuffer report\n\r");
+     printf_tiny("\rBuffer #\tBuffer_Start_Address\tBuffer_End_Address\tSize_Of_Buffer\tStorage_Characters_In_The_Buffer\tAvailable_Free_Space\n\r");
+     for(i=0; i<MAX_BUFS; i++){
+        if(buffer_ptr[i] != NULL){
+            start_address = (unsigned long)buffer[i].buf;
+            end_address = start_address + buffer[i].size;
+            printf_tiny("\r%d\t\t\t%d\t\t\t%d\t\t\t%d\t\t\t%d\t\t\t\t%d\n\r", i, start_address, end_address, buffer[i].size, CBLengthData(&buffer[i]), buffer[i].size - CBLengthData(&buffer[i]));
+        }
+
+     }
+     printf("\n\n\rNumber of characters received since last '?' - Buffer Report\n\r");
+     printf("\rStorage characters=%d\tCommand characters=%d\tTotal characters=%d\n\n\r", storage_char, command_char, storage_char+command_char);
+     printf("\rCharacters stored in the buffer:\n\r");
+     printBuf(&buffer[0]);
+     printf("\n\n\r");
+     printf_tiny("\rEmptying the buffer.\n\n\r");
+     for(i=0;i<buffer[0].write; i++){
+        if(CBRead(&buffer[0], rx_array)==BufferEmpty){
+            break;
+        }
+     }
+     buffer[0].write=0;
+     buffer[0].read=0;
+     for(i=0; i<100; i++){
+        rx_array[i]=0;
+     }
+
 }
 
 void hex_report(){
@@ -316,7 +351,7 @@ void hex_report(){
 //gets the buffer state
 eBuffState BufferState(struct CirBuf *cb){
 
-	if(CBLengthData(cb) == (cb->size - 1))
+	if(CBLengthData(cb) == (cb->size))
 	{
 		e_buffer_state = BufferFull;
 	}
@@ -334,26 +369,35 @@ eBuffState BufferState(struct CirBuf *cb){
 //prints the buffer
 
 void printBuf(struct CirBuf *cb){
-	int i;
+	int i, temp;
 	char i_data;
-	printf_tiny("\r");
+	//printf_tiny("\r%d\n\r", cb->size);
+	//printf_tiny("\r%s\n\r", cb->buf);
+    printf("\n\r");
 	for(i=0;i<cb->size;i++){
 	//	printf_tiny("[%c]  ",(int)*((cb->buf) + i));
        i_data =  (char)*((cb->buf) + i);
+       if(i_data=='\0'){
+        break;
+       }
        tx_data_char(i_data);
-        printf_tiny("\t");
+       printf_tiny("  ");
+       temp=i;
+       if(temp!=0 && temp%31==0){
+        printf_tiny("\n\r");
+       }
 	}
 	printf_tiny("\n");
 }
 
 //gets the length of data in the buffer
 uint16_t CBLengthData(struct CirBuf *cb){
-	return ((cb->write - cb->read) & (cb->size - 1));
+	return (cb->write - cb->read);
 }
 
 //function to check if the buffer is full or no
 eBuffState Bufferfull(struct CirBuf *cb){
-	if(CBLengthData(cb) == (cb->size - 1))
+	if(CBLengthData(cb) == (cb->size))
 	{
 		e_buffer_state = BufferFull;
 	}
@@ -397,8 +441,19 @@ eBuffState CBWrite(struct CirBuf *cb, uint8_t i_data){
 
 	if (NULL != cb->buf)
 	{
+	  //  printf_tiny("\rwrite pointer=%d\n\r", cb->write);
 		cb->buf[cb->write] = i_data;
-		cb->write = (cb->write + 1) & (cb->size - 1);
+		if(cb->write < cb->size){
+            cb->write +=1;
+		}
+		else{
+            if(Bufferfull(cb)==BufferAvailable){
+                cb->write = 0;
+            }
+            else{
+                return BufferFull;
+            }
+		}
 		printBuf(cb);
 	}
 	else
@@ -413,18 +468,25 @@ eBuffState CBWrite(struct CirBuf *cb, uint8_t i_data){
 eBuffState CBRead(struct CirBuf *cb, uint8_t *i_data){
 
 	if(BufferState(cb) == BufferEmpty) {
-		printf_tiny("\rBufferEmpty\n");
+//		printf_tiny("\rBufferEmpty\n");
 		return BufferEmpty;
 	}
 	else
 	{
-		printf_tiny("\rBuffer is not empty\n");
+//		printf_tiny("\rBuffer is not empty\n");
 	}
 	if (NULL != cb->buf)
 	{
 	*i_data = cb->buf[cb->read];
-	cb->read = (cb->read + 1) & (cb->size - 1);
-	printf_tiny("\rData Read at index %d is %d\n", cb->read, *i_data);
+	cb->buf[cb->read]=0; //to delete the read data
+	if(cb->read < cb->write-1){
+       cb->read = (cb->read + 1);
+	}
+	else{
+        return BufferEmpty;
+	}
+
+//	printf_tiny("\rData Read at index %d is %d\n", cb->read, *i_data);
 	}
 	else
 	{
