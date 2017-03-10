@@ -5,14 +5,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 int putstr (char *s);
 
 volatile int gg;  // global
 
+
+char rx_array[100];
+void get_user_commands(void);
+char *tx_string_ptr;
+
+
+struct CirBuf {
+	char *buf;
+	uint16_t size;		//as a power of 2
+	uint16_t read;
+	uint16_t write;
+};
+
+typedef enum{
+	BufferInvalid=0,	//used for buffer initialization
+	BufferAvailable,
+	BufferFull,
+	BufferEmpty
+}eBuffState;
+
+
 #include <malloc.h>
 #define HEAP_SIZE 2500   // size must be smaller than available XRAM
 unsigned char xdata heap[HEAP_SIZE];
+eBuffState e_buffer_state = BufferInvalid;
+
+struct CirBuf buffer[50];
+xdata char *buffer_ptr[100];
 
 void tx_data_char(char tx_data);
 char rx_data_char(void);
@@ -24,11 +50,14 @@ void remove_buffer();
 void buffer_report();
 void hex_report();
 
+uint16_t CBLengthData(struct CirBuf *cb);
+void printBuf(struct CirBuf *cb);
+eBuffState Bufferfull(struct CirBuf *cb);
+eBuffState Bufferempty(struct CirBuf *cb);
+eBuffState CBWrite(struct CirBuf *cb, uint8_t data);
+eBuffState CBRead(struct CirBuf *cb, uint8_t *data);
+eBuffState BufferState(struct CirBuf *cb);
 
-char rx_array[100];
-char *buffer_ptr[100];
-void get_user_commands(void);
-char *tx_string_ptr;
 
 // compiler flags
 // -c -mmcs51 --std-sdcc99 --verbose --model-large
@@ -105,13 +134,15 @@ char *rx_get_string(void){
 
 void get_user_commands(void){
 while(1){
-    char message5[300]="Enter:\r\n* Lower Case Characters(a,b..) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r";
+    char message5[300]="Enter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r";
 	char user_data;
 	tx_string_ptr = message5;
 	tx_data_string(tx_string_ptr);
 	user_data = rx_data_char();
-	printf_tiny("\rYou enterred: %d\n\r", user_data);
-	if(user_data >= 'a' & user_data <= 'z'){
+	printf_tiny("\rYou enterred:");
+	tx_data_char(user_data);
+	printf("\n\r");
+	if((user_data >= 'a' && user_data <= 'z') || (user_data >= '0' && user_data <= '9')){
         lower_case();
 	}
 	else{
@@ -142,6 +173,8 @@ while(1){
 
 void lower_case(){
     printf_tiny("\rlower case\n\r");
+  //  struct CirBuf buffer_0;
+
 }
 
 void new_buffer(){
@@ -160,17 +193,130 @@ void hex_report(){
      printf_tiny("\rhex_report\n\r");
 }
 
+
+//gets the buffer state
+eBuffState BufferState(struct CirBuf *cb){
+
+	if(CBLengthData(cb) == (cb->size - 1))
+	{
+		e_buffer_state = BufferFull;
+	}
+	else if(CBLengthData(cb) == 0)
+	{
+		e_buffer_state = BufferEmpty;
+	}
+	else
+	{
+		e_buffer_state = BufferAvailable;
+	}
+	return e_buffer_state;
+}
+
+//prints the buffer
+
+void printBuf(struct CirBuf *cb){
+	int i;
+	for(i=0;i<cb->size;i++){
+		printf("[%d]\t",cb->buf[i]);
+	}
+	printf("\n");
+}
+
+//gets the length of data in the buffer
+uint16_t CBLengthData(struct CirBuf *cb){
+	return ((cb->write - cb->read) & (cb->size - 1));
+}
+
+//function to check if the buffer is full or no
+eBuffState Bufferfull(struct CirBuf *cb){
+	if(CBLengthData(cb) == (cb->size - 1))
+	{
+		e_buffer_state = BufferFull;
+	}
+	else
+	{
+		e_buffer_state = BufferAvailable;
+	}
+	return e_buffer_state;
+}
+
+//function to verify if the buffer is empty or no
+
+eBuffState Bufferempty(struct CirBuf *cb){
+	if(CBLengthData(cb) == 0)
+	{
+                e_buffer_state = BufferFull;
+        }
+        else
+        {
+                e_buffer_state = BufferAvailable;
+        }
+        return e_buffer_state;
+}
+
+
+//function to write in the buffer
+eBuffState CBWrite(struct CirBuf *cb, uint8_t i_data){
+
+	if(BufferState(cb) == BufferFull)
+	{
+		printf("BufferFull\n");
+		return BufferFull;
+	}
+	else
+	{
+		printf("Buffer is Available\n");
+	}
+
+	if (NULL != cb->buf)
+	{
+		cb->buf[cb->write] = i_data;
+		cb->write = (cb->write + 1) & (cb->size - 1);
+		printBuf(cb);
+	}
+	else
+	{
+		printf("Write buffer pointer is null\n");
+	}
+
+	return BufferAvailable;
+}
+
+//function to read from the buffer
+eBuffState CBRead(struct CirBuf *cb, uint8_t *i_data){
+
+	if(BufferState(cb) == BufferEmpty) {
+		printf("BufferEmpty\n");
+		return BufferEmpty;
+	}
+	else
+	{
+		printf("Buffer is not empty\n");
+	}
+	if (NULL != cb->buf)
+	{
+	*i_data = cb->buf[cb->read];
+	cb->read = (cb->read + 1) & (cb->size - 1);
+	printf("Data Read at index %d is %d\n", cb->read, *i_data);
+	}
+	else
+	{
+		printf("Pointer is null\n");
+	}
+}
+
+
+
 void main(){
 	char my_rec_data;
 	char *user_buffer_size;
 	char size_buf_string[25] = "123";
-	xdata char *buffer_ptr[100];
 	int user_buf_size, temp, i=0;
 	//char tx_string[0x1000000];
 	char message1[100]="Please enter the desired buffer size(in bytes) between 8 and 2400 which should be a multiple of 8\r\n";
 	char message2[50]="Size not a multiple of 8. Enter valid size. \r\n";
 	char message3[50]="Size too large. Enter a lower size. \r\n";
-	char message4[40]="Buffer initialized. Buffer Size: \0";
+	char message4[40]="Buffers 0 and 1 initialized with Buffer Size: \0";
 //	tx_string_ptr = malloc(0x100000);
 //	tx_string_ptr=rx_get_string();
 //	my_rec_data = rx_data_char();
@@ -208,12 +354,21 @@ enter_size:	tx_string_ptr = message1;
 //			tx_string_ptr=message4;
 	//		tx_data_string(tx_string_ptr);
             printf_tiny("\r%s", message4);
+            buffer[0].buf=buffer_ptr[0];
+            buffer[0].size = (uint16_t)user_buffer_size;
+            buffer[0].read = 0;
+            buffer[0].write = 0;
+            buffer[1].buf=buffer_ptr[1];
+            buffer[1].size = (uint16_t)user_buffer_size;
+            buffer[1].read = 0;
+            buffer[1].write = 0;
+
 //			tx_string_ptr=rx_array;
 	//		tx_data_string(tx_string_ptr);
             printf_tiny("%s\n", rx_array);
-            i=(unsigned long)buffer_ptr[0];
+            i=(unsigned long)buffer[0].buf;
             printf_tiny("Buffer 0 base address = %d\n\r", i);
-            temp=(unsigned long)buffer_ptr[1];
+            temp=(unsigned long)buffer[1].buf;
             printf_tiny("Buffer 1 base address = %d\n\r", temp);
 			get_user_commands();
 		}
