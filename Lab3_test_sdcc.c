@@ -9,6 +9,14 @@
 #include <math.h>
 
 #define MAX_BUFS 100
+
+
+#define DEBUG
+#ifdef DEBUG
+#define DEBUGPORT(x) dataout(x);
+#else
+#define DEBUGPORT(x)
+#endif // DEBUG
 int putstr (char *s);
 int storage_char=0, command_char=0;
 
@@ -139,7 +147,7 @@ char *rx_get_string(void){
 
 void get_user_commands(void){
 while(1){
-    char message5[320]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r* '@' - To free all buffers and restart\n\r";
+    char message5[320]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r* '@' - To free all buffers and restart\n\n\n\r";
 	char user_data;
 	tx_string_ptr = message5;
 	tx_data_string(tx_string_ptr);
@@ -197,8 +205,11 @@ void lower_case(char user_data){
 void new_buffer(){
      int user_buf_size=0, temp, i;
      printf_tiny("\rYou selected to add new buffer\n\r");
-enter_size_1:printf_tiny("\rSpecify buffer's size between 20 and 400\n\r");
+enter_size_1:printf_tiny("\rSpecify buffer's size between 20 and 400\n\rPress backspace (followed by enter) to exit to menu\n\r");
      rx_get_string();
+     if(rx_array[0] == 0x08){
+        goto exit_to_menu;
+     }
 	 printf_tiny("\rSize received: %s\n", rx_array);
      user_buf_size=0;
      temp=0;
@@ -251,6 +262,7 @@ enter_size_1:printf_tiny("\rSpecify buffer's size between 20 and 400\n\r");
                 }
             }
         }
+     exit_to_menu:
 }
 
 void remove_buffer(){
