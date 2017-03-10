@@ -344,7 +344,7 @@ void buffer_report(){
 }
 
 void hex_report(){
-     printf_tiny("\rhex_report\n\r");
+     printf_tiny("\rHex_report\n\r");
 }
 
 
@@ -502,8 +502,8 @@ void main(){
 	char size_buf_string[25] = "123";
 	int user_buf_size, temp, i=0;
 	//char tx_string[0x1000000];
-	char message1[100]="Please enter the desired buffer size(in bytes) between 8 and 2400 which should be a multiple of 8\r\n";
-	char message2[50]="Size not a multiple of 8. Enter valid size. \r\n";
+	char message1[100]="Please enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n";
+	char message2[50]="Invalid Size. Enter valid size. \r\n";
 	char message3[50]="Size too large. Enter a lower size. \r\n";
 	char message4[50]="Buffers 0 and 1 initialized with Buffer Size: \0";
 //	tx_string_ptr = malloc(0x100000);
@@ -529,7 +529,7 @@ enter_size:	tx_string_ptr = message1;
 
 	temp=user_buf_size;
 
-	if(temp % 8 != 0){
+	if((temp % 8 != 0) || (user_buf_size <32) || (user_buf_size >2400)){
 		tx_string_ptr = message2;
 		printf_tiny("\r%s\n", message2);
 	//	tx_data_string(tx_string_ptr);
@@ -567,7 +567,7 @@ enter_size:	tx_string_ptr = message1;
 			//tx_string_ptr=message3;
 			//tx_data_string(tx_string_ptr);
 			free(buffer_ptr[0]);
-			printf_tiny("/r%s/n", message3);
+			printf_tiny("\r%s\n", message3);
 			goto enter_size;
 
 		}
