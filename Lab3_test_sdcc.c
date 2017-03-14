@@ -1,33 +1,39 @@
-/// Last Revision:  October 4, 2009
+/*
+*@file main.c
+*@brief Console to create/delete and analyse buffers in heap memory
+*@author Dharmik Thakkar
+*@Date 03/10/2107
+*@github_link: https://github.com/dharmikthakkar/ECEN-5613-ESD
+*@ECEN 5613 Embedded Systems Design, University of Colorado Boulder
+*/
+
+
+/* includes */
 #include <at89c51ed2.h>  //also includes 8052.h and 8051.h
 #include <mcs51reg.h>
-//#include <8052.h>   // also included in at89c51ed2.h
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
 
-#define MAX_BUFS 100
 
+#define MAX_BUFS 100 //max. number of buffers
 
+/* Debug functionality. Included on Defining DEBUG */
 #define DEBUG
 #ifdef DEBUG
 #define DEBUGPORT(x) dataout(x);
 #else
 #define DEBUGPORT(x)
-#endif // DEBUG
+#endif
+
+#define HEAP_SIZE 2500   // size must be smaller than available XRAM
 
 
-void dataout(int x);
-void putstr1 (char *s);
-
-int putstr (char *s);
+/* global variabls */
 int storage_char=0, command_char=0;
-
 volatile int gg;  // global
-
-
 char rx_array[100];
 void get_user_commands(void);
 char *tx_string_ptr;
@@ -35,7 +41,7 @@ char *tx_string_ptr;
 
 struct CirBuf {
 	char *buf;
-	uint16_t size;		//as a power of 2
+	uint16_t size;
 	uint16_t read;
 	uint16_t write;
 };
@@ -48,16 +54,15 @@ typedef enum{
 }eBuffState;
 
 
-#include <malloc.h>
-#define HEAP_SIZE 2500   // size must be smaller than available XRAM
 unsigned char xdata heap[HEAP_SIZE];
 eBuffState e_buffer_state = BufferInvalid;
-
 struct CirBuf buffer[50];
 xdata char *buffer_ptr[100];
 char buffer_index=0;
 
-xdata int *db;
+xdata int *db; //xdata pointer for debugging
+
+/* function declarations */
 
 void tx_data_char(char tx_data);
 char rx_data_char(void);
@@ -69,7 +74,13 @@ void remove_buffer();
 void buffer_report();
 void hex_report();
 void free_heap();
+void dataout(int x);
+void run_pwm();
+void stop_pwm();
+void enter_idle();
+void enter_power_down();
 
+/* Circular buffer function declarations */
 uint16_t CBLengthData(struct CirBuf *cb);
 void printBuf(struct CirBuf *cb);
 eBuffState Bufferfull(struct CirBuf *cb);
@@ -78,27 +89,12 @@ eBuffState CBWrite(struct CirBuf *cb, uint8_t data);
 eBuffState CBRead(struct CirBuf *cb, uint8_t *data);
 eBuffState BufferState(struct CirBuf *cb);
 
-
-// compiler flags
-// -c -mmcs51 --std-sdcc99 --verbose --model-large
-
-// linker flags for C501 with code in SRAM at 0x6000 and data in SRAM at 0xC000
-// --code-loc 0x6000 --code-size 0x6000 --xram-loc 0xC000 --xram-size 0x0400 --model-large --out-fmt-ihx
-
-// linker flags for AT89C51RC2 with code in Flash at 0x0000 and data in internal XRAM at 0x0000
-// --code-loc 0x0000 --code-size 0x8000 --xram-loc 0x0000 --xram-size 0x400 --model-large --out-fmt-ihx
-
-// linker flags for AT89C51RC2 with code in Flash at 0x0000 and data in internal/external XRAM at 0x0000
-// --code-loc 0x0000 --code-size 0x8000 --xram-loc 0x0000 --xram-size 0x8400 --model-large --out-fmt-ihx
-
-// All processor XRAM should be enabled before the call to main().
-// This can be done in a user supplied _sdcc_external_startup() function.
-// See section 3.11.1 of sdccman.pdf for SDCC revision 2.6.0.
+/* start up code */
 _sdcc_external_startup()
 {
-    AUXR |= 0x0C;
-    TMOD = 0x20;
-	TH1 = -3;
+    AUXR |= 0x0C;   //use 1Kb of XRAM
+    TMOD = 0x20;    //Timer 1 in mode 2
+	TH1 = -3;       //Baud rate = 9600
 	SCON = 0x50;
 	TI=1;
 	TR1 = 1;
@@ -116,10 +112,6 @@ void dataout(int x)
 
 char rx_data_char(void){
 	char my_data;
-	//TMOD = 0x20;
-	//TH1 = -3;
-	//SCON = 0x50;
-	//TR1 = 1;
 	while(!RI);
 	my_data=SBUF;
 	RI=0;
@@ -128,11 +120,6 @@ char rx_data_char(void){
 }
 
 void tx_data_char(char tx_data){
-	//TMOD = 0x20;
-	//TH1 = -6;
-	//SCON = 0x50;
-	//TR1 = 1;
-
 	while(!TI);
 	TI=0;
 	SBUF = tx_data;
@@ -162,7 +149,7 @@ char *rx_get_string(void){
 
 void get_user_commands(void){
 while(1){
-    char message5[320]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r* '@' - To free all buffers and restart\n\n\n\r";
+    char message5[320]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r* '@' - To free all buffers and goto previous menu\n\r* Backspace - To goto previous menu\n\n\n\r";
 	char user_data;
 	tx_string_ptr = message5;
 	tx_data_string(tx_string_ptr);
@@ -182,7 +169,7 @@ while(1){
         break;
 
     case '-':
-        DEBUGPORT(8)
+   //     DEBUGPORT(8)
         command_char++;
         remove_buffer();
         break;
@@ -202,6 +189,10 @@ while(1){
         free_heap();
         goto restart;
         break;
+
+    case 0x08:
+        goto restart;
+
     default:
         printf_tiny("\rInvalid input. Enter a valid input\n\r");
         break;
@@ -271,14 +262,17 @@ enter_size_1:printf_tiny("\rSpecify buffer's size between 20 and 400\n\rPress ba
             i=(unsigned long)buffer[buffer_index].buf;
             printf_tiny("Buffer %d base address = %d\n\r", buffer_index, i);
             buffer_index++;
-            for(i=MAX_BUFS; i>0; i--){
+        }
+        else{
+            printf_tiny("\rMemory size not available. Please insert a lower size for buffer\n\r");
+            goto enter_size_1;
+        }
+     exit_to_menu:for(i=MAX_BUFS; i>0; i--){
                 if(buffer_ptr[i] != NULL){
                 buffer_index=i;
                 break;
                 }
             }
-        }
-     exit_to_menu:
 }
 
 void remove_buffer(){
@@ -417,6 +411,34 @@ void free_heap(void){
     }
 }
 
+void run_pwm(){
+	CMOD &= 0x79;
+	CCON = 0x00;
+	CL=0x00;
+	CH=0x00;
+	CCAPM1 |= 0x42;
+	CCAP1L = 0x91;
+	CCAP1H = 0x91;
+	CR= 1;
+	printf_tiny("pwm running..");
+	//while(1);
+}
+
+void stop_pwm(){
+    CCAPM0 = 0x00;
+    CR = 0;
+    printf_tiny("/rYou selected to stop PWM\n\r");
+}
+
+void enter_idle(){
+    PCON = 0x01;
+    printf_tiny("/rYou selected to enter idle mode\n\r");
+}
+
+void enter_power_down(){
+    printf_tiny("/rYou selected to enter power down mode\n\r");
+    PCON = 0x02;
+}
 //gets the buffer state
 eBuffState BufferState(struct CirBuf *cb){
 
@@ -443,7 +465,7 @@ void printBuf(struct CirBuf *cb){
 	//printf_tiny("\r%d\n\r", cb->size);
 	//printf_tiny("\r%s\n\r", cb->buf);
     printf("\n\r");
-	for(i=0;i<cb->size;i++){
+	for(i=0;i<CBLengthData(cb);i++){
 	//	printf_tiny("[%c]  ",(int)*((cb->buf) + i));
        i_data =  (char)*((cb->buf) + i);
        if(i_data=='\0'){
@@ -572,8 +594,10 @@ void main(){
 	char *user_buffer_size;
 	while(1){
         int user_buf_size, temp, i=0;
+
+
         //char tx_string[0x1000000];
-        char message1[110]="Please enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n\0";
+        char message1[110]="Please enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n\nPress Backspace(followed by enter to exit to previous menu)\n\r\0";
         char message2[50]="Invalid Size. Enter valid size. \r\n";
         char message3[50]="Size too large. Enter a lower size. \r\n";
         char message4[50]="Buffers 0 and 1 initialized with Buffer Size: \0";
@@ -582,182 +606,121 @@ void main(){
     //	my_rec_data = rx_data_char();
         init_dynamic_memory((MEMHEADER xdata *)heap, HEAP_SIZE);
         printf("\rStart\n");
-    enter_size:	tx_string_ptr = message1;
-    //	tx_data_string(tx_string_ptr);
-        printf_tiny("\r%s\n", message1);
-        user_buffer_size=rx_get_string();
-        printf_tiny("\rSize received. %s\n", rx_array);
-      user_buf_size=0;
-        while(rx_array[i] != '\r'){
-        //	strcpy(size_buf_string, rx_array);
-            temp = rx_array[i]-0x30;
-            user_buf_size = 10*user_buf_size+temp;
-            i++;
+prev_menu:printf_tiny("\r1:Press 1 To Create Buffers\n\r2: Press 2 for the PWM menu\n\r");
+          temp = rx_data_char();
+        if(temp == '2'){
+//            while(1){
+pwm_mode:       printf_tiny("\r1: Press 1 to Run PWM.\n\r2: Press 2 to Stop PWM.\n\r3: Press 3 to enter Idle Mode.\n\r4. Press 4 to enter Power Down Mode. Press Backspace to goto previous menu.\n\r");
+                temp = rx_data_char();
+                switch(temp){
+                case '1':
+                    printf_tiny("\rPWM running on Pin P1.3 i.e. Pin 4.\n\r");
+                    run_pwm();
+                    break;
+
+                case '2':
+                    stop_pwm();
+                    break;
+
+                case '3':
+                    enter_idle();
+                    break;
+
+                case '4':
+                    enter_power_down();
+                    break;
+
+                case 0x08:
+                    goto exit_pwm;
+                    break;
+
+                default:
+                    printf_tiny("\rInvalid input. Enter a valid input\n\r");
+                    break;
+                    }
+                goto pwm_mode;
+                exit_pwm:
+ //           }
         }
-        i=0;
-    //		size_buf_string[5] = "123";
-        //user_buf_size=atoi(size_buf_string);
+        else if(temp == '1'){
+            enter_size:	tx_string_ptr = message1;
+            //	tx_data_string(tx_string_ptr);
+                printf_tiny("\r%s\n", message1);
+                user_buffer_size=rx_get_string();
+                if(rx_array[0] == 0x08){
+                    goto prev_menu;
+                }
+                printf_tiny("\rSize received. %s\n", rx_array);
+                user_buf_size=0;
+                while(rx_array[i] != '\r'){
+                //	strcpy(size_buf_string, rx_array);
+                    temp = rx_array[i]-0x30;
+                    user_buf_size = 10*user_buf_size+temp;
+                    i++;
+                }
+                i=0;
+            //		size_buf_string[5] = "123";
+                //user_buf_size=atoi(size_buf_string);
 
-        temp=user_buf_size;
+                temp=user_buf_size;
 
-        if((temp % 8 != 0) || (user_buf_size <32) || (user_buf_size >2400)){
-            tx_string_ptr = message2;
-            printf_tiny("\r%s\n", message2);
-        //	tx_data_string(tx_string_ptr);
-            goto enter_size;
-        }
-        printf_tiny("\rsize=%d\n", user_buf_size);
-        buffer_index=0;
-        buffer_ptr[buffer_index++]=malloc((unsigned int)user_buf_size);
-        if(buffer_ptr[0]){
-            buffer_ptr[buffer_index++]=malloc(user_buf_size);
-            if(buffer_ptr[1]){
-    //			tx_string_ptr=message4;
-        //		tx_data_string(tx_string_ptr);
-                printf_tiny("\r%s", message4);
-               // printf_tiny("\ruser buffer size = %d\n\r", user_buf_size)
-                buffer[0].buf=buffer_ptr[0];
-                buffer[0].size = (uint16_t)user_buf_size;
-                buffer[0].read = 0;
-                buffer[0].write = 0;
-                buffer[1].buf=buffer_ptr[1];
-                buffer[1].size = (uint16_t)user_buf_size;
-                buffer[1].read = 0;
-                buffer[1].write = 0;
+                if((temp % 8 != 0) || (user_buf_size <32) || (user_buf_size >2400)){
+                    tx_string_ptr = message2;
+                    printf_tiny("\r%s\n", message2);
+                //	tx_data_string(tx_string_ptr);
+                    goto enter_size;
+                }
+                printf_tiny("\rsize=%d\n", user_buf_size);
+                buffer_index=0;
+                buffer_ptr[buffer_index++]=malloc((unsigned int)user_buf_size);
+                if(buffer_ptr[0]){
+                    buffer_ptr[buffer_index++]=malloc(user_buf_size);
+                    if(buffer_ptr[1]){
+            //			tx_string_ptr=message4;
+                //		tx_data_string(tx_string_ptr);
+                        printf_tiny("\r%s", message4);
+                       // printf_tiny("\ruser buffer size = %d\n\r", user_buf_size)
+                        buffer[0].buf=buffer_ptr[0];
+                        buffer[0].size = (uint16_t)user_buf_size;
+                        buffer[0].read = 0;
+                        buffer[0].write = 0;
+                        buffer[1].buf=buffer_ptr[1];
+                        buffer[1].size = (uint16_t)user_buf_size;
+                        buffer[1].read = 0;
+                        buffer[1].write = 0;
 
-    //			tx_string_ptr=rx_array;
-        //		tx_data_string(tx_string_ptr);
-                printf_tiny("%d\n", buffer[0].size);
-                i=(unsigned long)buffer[0].buf;
-                printf_tiny("\rBuffer 0 base address = %d\n\r", i);
-                temp=(unsigned long)buffer[1].buf;
-                printf_tiny("\rBuffer 1 base address = %d\n\r", temp);
-                get_user_commands();
+            //			tx_string_ptr=rx_array;
+                //		tx_data_string(tx_string_ptr);
+                        printf_tiny("%d\n", buffer[0].size);
+                        i=(unsigned long)buffer[0].buf;
+                        printf_tiny("\rBuffer 0 base address = %d\n\r", i);
+                        temp=(unsigned long)buffer[1].buf;
+                        printf_tiny("\rBuffer 1 base address = %d\n\r", temp);
+                        get_user_commands();
+                    }
+                    else{
+                        //tx_string_ptr=message3;
+                        //tx_data_string(tx_string_ptr);
+                        free(buffer_ptr[0]);
+                        printf_tiny("\r%s\n", message3);
+                        goto enter_size;
+
+                    }
+                }
+                else{
+                        //tx_string_ptr=message3;
+                        //tx_data_string(tx_string_ptr);
+                        printf_tiny("%s\n", message3);
+                        goto enter_size;
+                }
             }
-            else{
-                //tx_string_ptr=message3;
-                //tx_data_string(tx_string_ptr);
-                free(buffer_ptr[0]);
-                printf_tiny("\r%s\n", message3);
-                goto enter_size;
-
-            }
-        }
         else{
-                //tx_string_ptr=message3;
-                //tx_data_string(tx_string_ptr);
-                printf_tiny("%s\n", message3);
-                goto enter_size;
+           printf_tiny("\rInvalid Input. Enter valid input\n\r");
+           goto prev_menu;
         }
-    }
-}
-
-// The following interrupt service routines are for reference only.
-// If an interrupt service routine changes variables which are accessed
-// by other functions these variables have to be declared volatile.
-// See section 3.8 of sdccman.pdf for SDCC revision 2.6.0.
-
-void isr_zero(void) __interrupt (0)
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-	gg++;         // increment global variable, which must be declared as volatile
-
-	__critical {
-		P1 = ~P1;
-		P3 |= 0x01;
-		}
-	puts("ISR 0");
-}
-
-void isr_one(void) __interrupt (1) __naked
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-
-	__critical {P1 = ~P1;}
-	//puts("ISR 1");
-}
-void isr_two(void) __interrupt (2)
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-
-	__critical {P1 = ~P1;}
-	puts("ISR 2");
-}
-
-void isr_three(void) __interrupt (3)
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-
-	__critical {P1 = ~P1;}
-	puts("ISR 3");
-}
-
-void isr_four(void) __interrupt (4) __naked
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-
-	__critical {P1 = ~P1;}
-	puts("ISR 4");
-}
-
-void isr_five(void) __interrupt (5)
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-
-	__critical {P1 = ~P1;}
-	//puts("ISR 5");
-}
-
-void isr_six(void) __interrupt (6)
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-
-	__critical {P1 = ~P1;}
-	//puts("ISR 6");
-}
-
-void isr_seven(void) __interrupt (7)
-{
-	int ii;
-
-	ii = 1;
-	P1 = 0x11;
-
-	__critical {P1 = ~P1;}
-	//puts("ISR 7");
-}
-
-int putstr (char *s)
-{
-	int i = 0;
-	while (*s){			// output characters until NULL found
-		putchar(*s++);
-		i++;
 	}
-	//putchar('\n');
-	return i+1;
 }
+
 
 void putchar (char c)
 {
