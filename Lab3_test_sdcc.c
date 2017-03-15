@@ -149,7 +149,7 @@ char *rx_get_string(void){
 
 void get_user_commands(void){
 while(1){
-    char message5[320]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r* '@' - To free all buffers and goto previous menu\n\r* Backspace - To goto previous menu\n\n\n\r";
+    char message5[370]="\rEnter:\r\n* Lower Case Characters(a,b..z) or Numbers (0,1..9) to fill the buffer\r\n* '+' - Create new buffer\r\n* '-' - Enter buffer to be removed (except Buffer 0)\r\n* '?' - To get buffer report and empty the buffers\r\n* '=' - To display contents of Buffer 0 in HEX\n\r* '@' - To free all buffers and goto previous menu\n\r* Backspace - To goto previous menu\n\n\n\r";
 	char user_data;
 	tx_string_ptr = message5;
 	tx_data_string(tx_string_ptr);
@@ -216,6 +216,10 @@ enter_size_1:printf_tiny("\rSpecify buffer's size between 20 and 400\n\rPress ba
      rx_get_string();
      if(rx_array[0] == 0x08){
         goto exit_to_menu;
+     }
+     if(rx_array[0] < 0x30 || rx_array[0] > 0x39){
+        printf_tiny("\rInvalid Input. Enter a valid input\n\r");
+        goto enter_size_1;
      }
 	 printf_tiny("\rSize received: %s\n", rx_array);
      user_buf_size=0;
@@ -427,17 +431,16 @@ void run_pwm(){
 void stop_pwm(){
     CCAPM0 = 0x00;
     CR = 0;
-    printf_tiny("/rYou selected to stop PWM\n\r");
 }
 
 void enter_idle(){
     PCON = 0x01;
-    printf_tiny("/rYou selected to enter idle mode\n\r");
+    printf_tiny("\rExiting idle mode\n\r");
 }
 
 void enter_power_down(){
-    printf_tiny("/rYou selected to enter power down mode\n\r");
     PCON = 0x02;
+    printf_tiny("\rExiting power down mode\n\r");
 }
 //gets the buffer state
 eBuffState BufferState(struct CirBuf *cb){
@@ -504,13 +507,13 @@ eBuffState Bufferfull(struct CirBuf *cb){
 eBuffState Bufferempty(struct CirBuf *cb){
 	if(CBLengthData(cb) == 0)
 	{
-                e_buffer_state = BufferFull;
-        }
-        else
-        {
-                e_buffer_state = BufferAvailable;
-        }
-        return e_buffer_state;
+        e_buffer_state = BufferFull;
+    }
+    else
+    {
+        e_buffer_state = BufferAvailable;
+    }
+    return e_buffer_state;
 }
 
 
@@ -597,7 +600,7 @@ void main(){
 
 
         //char tx_string[0x1000000];
-        char message1[110]="Please enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n\nPress Backspace(followed by enter to exit to previous menu)\n\r\0";
+    //    char message1[150]="Please enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n\nPress Backspace(followed by enter to exit to previous menu)\n\r\0";
         char message2[50]="Invalid Size. Enter valid size. \r\n";
         char message3[50]="Size too large. Enter a lower size. \r\n";
         char message4[50]="Buffers 0 and 1 initialized with Buffer Size: \0";
@@ -605,13 +608,25 @@ void main(){
     //	tx_string_ptr=rx_get_string();
     //	my_rec_data = rx_data_char();
         init_dynamic_memory((MEMHEADER xdata *)heap, HEAP_SIZE);
-        printf("\rStart\n");
-prev_menu:printf_tiny("\r1:Press 1 To Create Buffers\n\r2: Press 2 for the PWM menu\n\r");
+        printf("\n\n\r* Start *\n");
+prev_menu:printf_tiny("\r1:Press 1 To Create Buffers\n\r2:Press 2 for the PWM menu\n\r3:Press 3 for the High Speed Output\n\n\n\r");
           temp = rx_data_char();
-        if(temp == '2'){
+        if(temp == '3'){
+            printf_tiny("\rHigh speed output generated at P1.5 i.e. P6\n\r");
+            CMOD &= 0x79;
+            CCON = 0x00;
+            CL=0x00;
+            CH=0x00;
+            CR= 1;
+            CCAPM2 = 0x4C;
+        }
+        else if(temp == '2'){
 //            while(1){
-pwm_mode:       printf_tiny("\r1: Press 1 to Run PWM.\n\r2: Press 2 to Stop PWM.\n\r3: Press 3 to enter Idle Mode.\n\r4. Press 4 to enter Power Down Mode. Press Backspace to goto previous menu.\n\r");
+pwm_mode:       printf_tiny("\n\n\r* PWM MODE *\n\n\r1: Press 1 to Run PWM.\n\r2: Press 2 to Stop PWM.\n\r3: Press 3 to enter Idle Mode.\n\r4. Press 4 to enter Power Down Mode. Press Backspace to goto previous menu.\n\r");
                 temp = rx_data_char();
+                IT0 = 1;   // Configure interrupt 0 for falling edge on /INT0 (P3.2)
+                EX0 = 1;   // Enable EX0 Interrupt
+                EA = 1;    // Enable Global Interrupt Flag
                 switch(temp){
                 case '1':
                     printf_tiny("\rPWM running on Pin P1.3 i.e. Pin 4.\n\r");
@@ -619,14 +634,17 @@ pwm_mode:       printf_tiny("\r1: Press 1 to Run PWM.\n\r2: Press 2 to Stop PWM.
                     break;
 
                 case '2':
+                    printf_tiny("\rYou selected to stop PWM\n\r");
                     stop_pwm();
                     break;
 
                 case '3':
+                    printf_tiny("\rYou selected to enter idle mode\n\r");
                     enter_idle();
                     break;
 
                 case '4':
+                    printf_tiny("\rYou selected to enter power down mode\n\r");
                     enter_power_down();
                     break;
 
@@ -643,9 +661,9 @@ pwm_mode:       printf_tiny("\r1: Press 1 to Run PWM.\n\r2: Press 2 to Stop PWM.
  //           }
         }
         else if(temp == '1'){
-            enter_size:	tx_string_ptr = message1;
+            enter_size:
             //	tx_data_string(tx_string_ptr);
-                printf_tiny("\r%s\n", message1);
+                printf_tiny("\rPlease enter the desired buffer size(in bytes) between 32 and 2400 which should be a multiple of 8\r\n\nPress Backspace(followed by enter to exit to previous menu)\n\r\0");
                 user_buffer_size=rx_get_string();
                 if(rx_array[0] == 0x08){
                     goto prev_menu;
@@ -741,3 +759,11 @@ char getchar ()
 	RI = 0;			// clear RI flag
 	return SBUF;  	// return character from SBUF
 }
+
+void isr_zero(void) __interrupt (0)
+{
+IT0 = 1;   // Configure interrupt 0 for falling edge on /INT0 (P3.2)
+EX0 = 1;   // Enable EX0 Interrupt
+EA = 1;    // Enable Global Interrupt Flag
+}
+
