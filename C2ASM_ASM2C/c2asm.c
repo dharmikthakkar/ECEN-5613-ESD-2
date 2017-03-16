@@ -1,4 +1,3 @@
-
 #pragma src
 extern void send_to_c(char global_data);
 extern char c_global_data;
