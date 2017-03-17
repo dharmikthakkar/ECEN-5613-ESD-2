@@ -1,8 +1,8 @@
 /*
-*@file main.c
-*@brief Console to create/delete and analyse buffers in heap memory
+*@file Lab3_challenge_fifo_interrupt.c
+*@brief serial transfer using interrupts through FIFO
 *@author Dharmik Thakkar
-*@Date 03/10/2107
+*@Date 03/15/2107
 *@github_link: https://github.com/dharmikthakkar/ECEN-5613-ESD
 *@ECEN 5613 Embedded Systems Design, University of Colorado Boulder
 */
@@ -180,7 +180,7 @@ void main(){
     while(1);
 }
 
-
+/* ISR for serial interrupts */
 
 void isr_four(void) __interrupt (4)
 {

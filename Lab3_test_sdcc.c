@@ -1,8 +1,8 @@
 /*
-*@file main.c
-*@brief Console to create/delete and analyse buffers in heap memory
+*@file Lab3_supplemental_pwm_high_speed_with_buffer_code.c
+*@brief Console to create/delete and analyse buffers in heap memory with PWM mode and High speed  mode 
 *@author Dharmik Thakkar
-*@Date 03/10/2107
+*@Date 03/15/2107
 *@github_link: https://github.com/dharmikthakkar/ECEN-5613-ESD
 *@ECEN 5613 Embedded Systems Design, University of Colorado Boulder
 */
@@ -421,8 +421,8 @@ void run_pwm(){
 	CL=0x00;
 	CH=0x00;
 	CCAPM1 |= 0x42;
-	CCAP1L = 0x91;
-	CCAP1H = 0x91;
+	CCAP1L = 0x8A;
+	CCAP1H = 0x8A;
 	CR= 1;
 	printf_tiny("pwm running..");
 	//while(1);
