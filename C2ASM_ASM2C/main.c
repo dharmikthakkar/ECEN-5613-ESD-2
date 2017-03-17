@@ -9,6 +9,7 @@ void tx_data_char(char tx_data);
 char rx_data_char(void);
 void tx_data_string(char *tx_data_ptr);
 char *rx_get_string(void);
+char my_itoa(char my_data);
 char rx_array[100];
 
 extern unsigned char math_func(unsigned char param1, unsigned char param2, unsigned char param3);
@@ -41,7 +42,7 @@ void tx_data_char(char tx_data){
 
 void tx_data_string(char *tx_data_ptr){
 	TI=1;
-	while(*tx_data_ptr != '\n'){
+	while(*tx_data_ptr != '\0'){
 		tx_data_char(*tx_data_ptr);
 		tx_data_ptr++;
 	}
@@ -60,18 +61,30 @@ char *rx_get_string(void){
 	return rx_array;
 }
 
+
+char my_itoa(char my_data){
+	if(my_data < 10){
+		my_data = my_data + 0x30;
+	}
+	else{
+		my_data = my_data + 55;
+	}
+	return my_data;
+}
+
 void main(){
-	char output_asm=0;
+	char output_asm=0, temp;
 //	char my_rec_data;
 	char *user_buffer_size;
 	char size_buf_string[5] = "123";
-	int user_buf_size, temp, i=0;
+	int user_buf_size, i=0;
 	//char tx_string[0x1000000];
 	char *tx_string_ptr;
-	char message1[20]="\rEnter param 1\n";
-	char message2[20]="\rEnter param 2\n";
-	char message3[20]="\rEnter param 3\n";
+	char message1[20]="\n\rEnter param 1 ";
+	char message2[20]="\n\rEnter param 2 ";
+	char message3[20]="\n\rEnter param 3 ";
 	char param1, param2, param3;
+	char param1l, param1h, param2l, param2h, param3l, param3h;
 
 	//char message2[50]="Size not a multiple of 8. Enter valid size\n\r";
 //	tx_string_ptr = malloc(0x100000);
@@ -96,8 +109,17 @@ void main(){
 //		size_buf_string[5] = "123";
 	//user_buf_size=atoi(size_buf_string);
 //	output_asm = math_func(3, 23, 13);
-	temp=user_buf_size;
+//	temp=user_buf_size;
 	param1 = user_buf_size;
+	param1h = param1 & 0xF0;
+	param1h = param1h >> 4;
+	param1h = my_itoa(param1h);
+	param1l = param1&0x0F;
+	param1l = my_itoa(param1l);
+	tx_data_char(param1h);
+	tx_data_char(param1l);
+	tx_data_char('H');
+	tx_data_char('\n');
 	
 	tx_string_ptr = message2;
 	tx_data_string(tx_string_ptr);
@@ -115,7 +137,16 @@ void main(){
 //	
 	temp=user_buf_size;
 	param2 = user_buf_size;
-
+	param2h = param2 & 0xF0;
+	param2h = param2h >> 4;
+	param2h = my_itoa(param2h);
+	param2l = param2&0x0F;
+	param2l = my_itoa(param2l);
+	tx_data_char(param2h);
+	tx_data_char(param2l);
+	tx_data_char('H');
+	tx_data_char('\n');
+	
 	tx_string_ptr = message3;
 	tx_data_string(tx_string_ptr);
 	user_buffer_size=rx_get_string();
@@ -132,6 +163,17 @@ void main(){
 //	output_asm = math_func(3, 23, 13);
 	temp=user_buf_size;
 	param3 = user_buf_size;
+	
+	param3h = param3 & 0xF0;
+	param3h = param3h >> 4;
+	param3h = my_itoa(param3h);
+	param3l = param3&0x0F;
+	param3l = my_itoa(param3l);
+	tx_data_char(param3h);
+	tx_data_char(param3l);
+	tx_data_char('H');
+	tx_data_char('\n');
+	
 	output_asm = math_func(param1, param2, param3);
 
 	
