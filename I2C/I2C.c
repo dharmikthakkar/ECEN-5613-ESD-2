@@ -220,16 +220,16 @@ void I2C_init(void){
 void I2C_start(void){
     SDA = 1;
     SCL = 1;
-    delay_us(1);
     SDA = 0;
+    delay_us(1);
     SCL = 0;
 }
 
 void I2C_stop(void){
     SDA = 0;
     SCL = 1;
-    delay_us(1);
     SDA = 1;
+    delay_us(1);
     SCL = 0;
 }
 
@@ -252,7 +252,54 @@ void I2C_write(unsigned char write_data){
 
 }
 
+void I2C_Write_EEPROM(unsigned char word_address, unsigned char word_data){
+    I2C_start();
+    I2C_write((Device_Address << 1) | WR);
+    I2C_write(word_address);
+    I2C_write(word_data);
+    I2C_stop();
+    delay_ms(1);
+
+}
+
+unsigned char I2C_read(void){
+    unsigned char SDA_High = 1;
+    unsigned char SDA_Low = 0;
+    unsigned char temp_read = 0;
+    unsigned char i=0;
+    for(i=8; i>0; i--){
+        SCL = 1;
+        if(SDA == 1){
+            temp_read = temp_read | (SDA_High << (i-1));
+        }
+        else temp_read = temp_read | (SDA_Low << (i-1));
+        SCL = 0;
+    }
+    SCL = 1;
+    SDA = 1;
+    delay_us(1);
+    SCL = 0;
+    return temp_read;
+
+}
+
+unsigned char I2C_Read_EEPROM(unsigned char word_address){
+    unsigned char read_data;
+    I2C_start();
+    I2C_write((Device_Address << 1) | WR);
+    I2C_write(word_address);
+    I2C_start();
+    I2C_write((Device_Address << 1) | RD);
+    read_data = I2C_read();
+    I2C_stop();
+    delay_ms(1);
+    return read_data;
+
+
+}
+
 void main(){
+    unsigned char EEPROM_read_data = 0;
     //delay_ms(1);
     lcdinit();
     lcdgotoxy(3, 6);
@@ -262,11 +309,11 @@ void main(){
   //  lcdputstr(my_str);
     lcdclear();
     I2C_init();
-    I2C_start();
-    I2C_write((Device_Address << 1) | WR);
-    I2C_write(0x30);
-    I2C_write(0x02);
-    I2C_stop();
+    I2C_Write_EEPROM(0x30, 0x02);
+    EEPROM_read_data = I2C_Read_EEPROM(0x30);
+    I2C_Write_EEPROM(0xAA, 0x55);
+    EEPROM_read_data = I2C_Read_EEPROM(0xAA);
+
   while(1){
     Test_pin = 0;
     delay_ms(50);
