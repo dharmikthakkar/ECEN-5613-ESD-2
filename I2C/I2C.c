@@ -26,7 +26,7 @@
 
 #define WR 0
 #define RD 1
-#define Device_Address 0x50
+#define Device_Address 0xA0
 
 
 #define LCD_CMD ((xdata unsigned char *)0x8010)
@@ -34,9 +34,49 @@
 #define WR_LCD_INSTR ((xdata unsigned char *)0x8012)
 
 char *my_str="ESD_LAB4 BY DHARMIK THAKKAR\0";
+char rx_array[100];
 
 void delay_ms(int delay_t);
 
+
+
+
+char rx_data_char(void){
+	char my_data;
+	while(!RI);
+	my_data=SBUF;
+	RI=0;
+//	tx_data_char(my_data);
+	return my_data;
+}
+
+void tx_data_char(char tx_data){
+	while(!TI);
+	TI=0;
+	SBUF = tx_data;
+	//goto AGAIN;
+}
+
+void tx_data_string(char *tx_data_ptr){
+	TI=1;
+	while(*tx_data_ptr != '\0'){
+		tx_data_char(*tx_data_ptr);
+		tx_data_ptr++;
+	}
+}
+
+char *rx_get_string(void){
+	char i=0;
+	char *rx_array_ptr=rx_array;
+		RI=0;
+	while(*(rx_array_ptr+i-1) != '\r' & *(rx_array_ptr+i-1) != '\n'){
+		*(rx_array_ptr+i) = rx_data_char();
+		i++;
+	}
+	*(rx_array_ptr+i) = '\n';
+//	tx_data_string(rx_array);
+	return rx_array;
+}
 
 
 
@@ -253,8 +293,8 @@ void I2C_send_NACK(void){
     SCL = 0;
 }
 
-void I2C_write(unsigned char write_data){
-    unsigned char i=0, temp=0;
+unsigned char I2C_write(unsigned char write_data){
+    unsigned char i=0, temp=0, ack_bit;
     for(i=0; i<8; i++){
         temp = (write_data << i) & 0x80;
         if(temp == 0x80){
@@ -265,18 +305,23 @@ void I2C_write(unsigned char write_data){
         delay_us(1);
         SCL = 0;
     }
+    do{
     SDA = 1;
     SCL = 1;
+    ack_bit = SDA;
     delay_us(1);
     SCL = 0;
+    }while(ack_bit != 0);
+    return ack_bit;
 
 }
 
-void I2C_Write_EEPROM(unsigned char word_address, unsigned char word_data){
+void I2C_Write_EEPROM(int word_address, unsigned char word_data){
+    unsigned char temp_ack;
     I2C_start();
-    I2C_write((Device_Address << 1) | WR);
-    I2C_write(word_address);
-    I2C_write(word_data);
+    temp_ack = I2C_write((Device_Address)| ((0x700 & word_address) >> 7) | WR);
+    temp_ack = I2C_write((unsigned char)word_address);
+    temp_ack = I2C_write(word_data);
     I2C_stop();
     delay_ms(1);
 
@@ -304,7 +349,7 @@ unsigned char I2C_read(unsigned char temp_ack){
         SDA = 1;
         delay_us(1);
         SCL = 0;
-        I2C_init();
+        //I2C_init();
         return temp_read;
     }
 
@@ -321,30 +366,32 @@ unsigned char I2C_read(unsigned char temp_ack){
 
 }
 
-unsigned char I2C_Read_EEPROM(unsigned char word_address){
-    unsigned char read_data;
+unsigned char I2C_Read_EEPROM(int word_address){
+    unsigned char read_data, temp_ack;
     I2C_start();
-    I2C_write((Device_Address << 1) | WR);
-    I2C_write(word_address);
+    temp_ack = I2C_write((Device_Address)| (unsigned char)((0x700 & word_address) >> 7) | WR);
+    temp_ack = I2C_write(word_address);
     I2C_start();
-    I2C_write((Device_Address << 1) | RD);
+    temp_ack = I2C_write((Device_Address)| (unsigned char)((0x700 & word_address) >> 7) | RD);
     read_data = I2C_read(0);
     I2C_stop();
     delay_ms(1);
+    printf_tiny("/t%x/t", read_data);
     return read_data;
 
 
 }
 
-unsigned char * I2C_Read_SEQ_EEPROM(unsigned char start_word_address, unsigned char end_word_address){
+unsigned char * I2C_Read_SEQ_EEPROM(int start_word_address, int end_word_address){
     unsigned char temp_read_data_array[100];
-    unsigned char temp_num_bytes = 0, i=0;
+    int temp_num_bytes = 0;
+    unsigned char i=0, temp_ack;
     temp_num_bytes = end_word_address - start_word_address;
     I2C_start();
-    I2C_write((Device_Address << 1) | WR);
+    temp_ack = I2C_write((Device_Address)| (unsigned char)((0x700 & start_word_address) >> 7) | WR);
     I2C_write(start_word_address);
     I2C_start();
-    I2C_write((Device_Address << 1) | RD);
+    temp_ack = I2C_write((Device_Address)| (unsigned char)((0x700 & start_word_address) >> 7) | RD);
     for(i=0; i<=temp_num_bytes; i++){
         if(i == temp_num_bytes){
             temp_read_data_array[i]=I2C_read(0);
@@ -361,49 +408,118 @@ unsigned char * I2C_Read_SEQ_EEPROM(unsigned char start_word_address, unsigned c
 
 }
 
+unsigned char atoh(unsigned char ascii_hex){
+	if(ascii_hex>=0x30 && ascii_hex<=0x39) ascii_hex = ascii_hex - 0x30;
+	else if(ascii_hex>=0x41 && ascii_hex<=0x46) ascii_hex = ascii_hex - 0x37;
+	else if(ascii_hex>=0x61 && ascii_hex<=0x66) ascii_hex = ascii_hex - 0x57;
+	else return 0xFF;
+	return ascii_hex;
+
+}
+
+int stoh(unsigned char *string_hex){
+    unsigned char i=0, j=0;
+    int hex_result = 0;
+    while(*(string_hex + i) != '\r'){
+   //     printf_tiny("\rcharacter to be converted = %c\n", *(string_hex + i));
+        *(string_hex + i) = atoh(*(string_hex + i));
+    //    printf_tiny("\rconverted hex_value = %d\n", *(string_hex + i));
+        if(*(string_hex + i) == 0xFF || i > 2){
+            break;
+        }
+        i++;
+    }
+    if((*(string_hex + i) == 0xFF) || i > 3){
+    //    printf_tiny("\rerror: wrong char or more char \n");
+        return 0xFFFF;
+    }
+    else{
+    //    printf_tiny("\rconverted values are: %d\t%d\t%d\n", *(string_hex), *(string_hex + 1), *(string_hex + 2));
+        for(j=0; j<i; j++){
+            hex_result |= (*(string_hex + i-j-1) << (j*4));
+        }
+    //    printf_tiny("\rHex_result=%d\n", hex_result);
+        return hex_result;
+    }
+
+}
+
+unsigned char write_menu(void){
+    unsigned char *user_address;
+    unsigned char *user_data;
+    int user_addr=0, user_d = 0;
+    do{
+        printf_tiny("\rWrite Mode Entered!\n\rEnter valid address between 000 (Hex) to 7FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
+        user_address = rx_get_string();
+        if(rx_array[0] == 0x08){
+            return 0;
+        }
+        printf_tiny("\rAddress received = %s\n", rx_array);
+        user_addr = stoh(user_address);
+        if(user_addr == 0xFFFF){
+            printf_tiny("\rEnter valid address!\n\r");
+        }
+    }while(user_addr == 0xFFFF);
+    do{
+        printf_tiny("\rEnter valid data between 00 (Hex) to FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
+        user_data = rx_get_string();
+        if(rx_array[0] == 0x08){
+            return 0;
+        }
+        printf_tiny("\rData received = %s\n", rx_array);
+        user_d = stoh(user_data);
+        if(user_d > 0xFF){
+            printf_tiny("\rEnter valid data!\n\r");
+        }
+    }while(user_d > 0xFF);
+    I2C_Write_EEPROM(user_addr, (unsigned char)user_d);
+    user_d = (int)I2C_Read_EEPROM(user_addr);
+    printf_tiny("\rData written = %d\n", user_d);
+}
+
+void read_menu(){
+    printf_tiny("\rRead menu\n");
+}
+
+
+void hex_dump(){
+    printf_tiny("\rhex_dump\n");
+}
+
 void main(){
-    unsigned char EEPROM_read_data = 0;
+    unsigned char EEPROM_read_data = 0, temp = 0;
+    int i=0;
 
     TMOD = 0x20;    //Timer 1 in mode 2
 	TH1 = -3;       //Baud rate = 9600
 	SCON = 0x50;
 	TI=1;
 	TR1 = 1;
-    printf_tiny("\n\rstart\n\r");
-
-    //delay_ms(1);
+    printf_tiny("\n\rStart\n\r");
     lcdinit();
     lcdgotoxy(3, 6);
     lcdputstr(my_str);
     delay_ms(2000);
-  //lcdputstr(my_str);
-  //  lcdputstr(my_str);
     lcdclear();
     I2C_init();
-    I2C_Write_EEPROM(0x30, 0x22);
-    I2C_Write_EEPROM(0x31, 0x44);
-    I2C_Write_EEPROM(0x32, 0x66);
-    I2C_Read_SEQ_EEPROM(0x30, 0x32);
+    printf_tiny("\r1:Press 1 Write To EEPROM\n\r2:Press 2 to Read from the EEPROM\n\r3:Press 3 to get the HEX DUMP\n\n\n\r");
+    temp = rx_data_char();
+    switch(temp){
+    case '1':
+        write_menu();
+        break;
+    case '2':
+        read_menu();
+        break;
+    case '3':
+        hex_dump();
+        break;
+    default:
+        printf_tiny("\rInvalid input. Enter a valid input\n\r");
+        break;
+    }
 
-    I2C_Write_EEPROM(0x50, 0x60);
-    I2C_Write_EEPROM(0x51, 0x61);
-    I2C_Write_EEPROM(0x52, 0x62);
-    I2C_Write_EEPROM(0x53, 0x63);
-    I2C_Write_EEPROM(0x54, 0x64);
 
-    I2C_Read_SEQ_EEPROM(0x50, 0x54);
-
-    I2C_Write_EEPROM(0xA0, 0x69);
-    EEPROM_read_data = I2C_Read_EEPROM(0xA0);
-    printf_tiny("\n\r%d\n\r", EEPROM_read_data);
-
-/*
-    EEPROM_read_data = I2C_Read_EEPROM(0x30);
-    printf_tiny("\n\rEEPROM read data = %x\n\r", EEPROM_read_data);
-    I2C_Write_EEPROM(0xAA, 0x55);
-    EEPROM_read_data = I2C_Read_EEPROM(0xAA);
-    printf_tiny("\n\rEEPROM read data = %x\n\t", EEPROM_read_data);
-*/
   while(1){
     Test_pin = 0;
     delay_ms(50);
