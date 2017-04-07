@@ -37,6 +37,9 @@ char *my_str="ESD_LAB4 BY DHARMIK THAKKAR\0";
 
 void delay_ms(int delay_t);
 
+
+
+
 void delay_us(int delay_t_us){
     int i=0, j=0;
     for(i=0; i<delay_t_us; i++){
@@ -51,7 +54,7 @@ void delay_ms(int delay_t){
     for(i=0; i<delay_t; i++){
         TR0 = 0;
         TF0 = 0;
-        TMOD = 0x01;
+        TMOD |= 0x01;
         TL0 =  0x89;
         TH0 = 0xFC;
         TR0 = 1;
@@ -233,6 +236,23 @@ void I2C_stop(void){
     SCL = 0;
 }
 
+void I2C_send_ACK(void){
+    SCL = 0;
+    SDA = 0;
+    SCL = 1;
+    delay_us(1);
+    SCL = 0;
+}
+
+
+void I2C_send_NACK(void){
+    SCL = 0;
+    SDA = 1;
+    SCL = 1;
+    delay_us(1);
+    SCL = 0;
+}
+
 void I2C_write(unsigned char write_data){
     unsigned char i=0, temp=0;
     for(i=0; i<8; i++){
@@ -262,7 +282,7 @@ void I2C_Write_EEPROM(unsigned char word_address, unsigned char word_data){
 
 }
 
-unsigned char I2C_read(void){
+unsigned char I2C_read(unsigned char temp_ack){
     unsigned char SDA_High = 1;
     unsigned char SDA_Low = 0;
     unsigned char temp_read = 0;
@@ -275,10 +295,28 @@ unsigned char I2C_read(void){
         else temp_read = temp_read | (SDA_Low << (i-1));
         SCL = 0;
     }
+    if(temp_ack == 1){
+        I2C_send_ACK();
+    }
+    else{
+        //I2C_send_NACK();
+        SCL = 1;
+        SDA = 1;
+        delay_us(1);
+        SCL = 0;
+        I2C_init();
+        return temp_read;
+    }
+
+    SDA = 1;
+
+/*
     SCL = 1;
     SDA = 1;
-    delay_us(1);
+    //delay_us(1);
+    //for(i=0; i<2; i++);
     SCL = 0;
+*/
     return temp_read;
 
 }
@@ -290,7 +328,7 @@ unsigned char I2C_Read_EEPROM(unsigned char word_address){
     I2C_write(word_address);
     I2C_start();
     I2C_write((Device_Address << 1) | RD);
-    read_data = I2C_read();
+    read_data = I2C_read(0);
     I2C_stop();
     delay_ms(1);
     return read_data;
@@ -298,8 +336,41 @@ unsigned char I2C_Read_EEPROM(unsigned char word_address){
 
 }
 
+unsigned char * I2C_Read_SEQ_EEPROM(unsigned char start_word_address, unsigned char end_word_address){
+    unsigned char temp_read_data_array[100];
+    unsigned char temp_num_bytes = 0, i=0;
+    temp_num_bytes = end_word_address - start_word_address;
+    I2C_start();
+    I2C_write((Device_Address << 1) | WR);
+    I2C_write(start_word_address);
+    I2C_start();
+    I2C_write((Device_Address << 1) | RD);
+    for(i=0; i<=temp_num_bytes; i++){
+        if(i == temp_num_bytes){
+            temp_read_data_array[i]=I2C_read(0);
+        }
+        else{
+            temp_read_data_array[i]=I2C_read(1);
+        }
+    }
+
+    I2C_stop();
+    delay_ms(1);
+    printf_tiny("\n\r%s\n\r", temp_read_data_array);
+    return temp_read_data_array;
+
+}
+
 void main(){
     unsigned char EEPROM_read_data = 0;
+
+    TMOD = 0x20;    //Timer 1 in mode 2
+	TH1 = -3;       //Baud rate = 9600
+	SCON = 0x50;
+	TI=1;
+	TR1 = 1;
+    printf_tiny("\n\rstart\n\r");
+
     //delay_ms(1);
     lcdinit();
     lcdgotoxy(3, 6);
@@ -309,11 +380,30 @@ void main(){
   //  lcdputstr(my_str);
     lcdclear();
     I2C_init();
-    I2C_Write_EEPROM(0x30, 0x02);
+    I2C_Write_EEPROM(0x30, 0x22);
+    I2C_Write_EEPROM(0x31, 0x44);
+    I2C_Write_EEPROM(0x32, 0x66);
+    I2C_Read_SEQ_EEPROM(0x30, 0x32);
+
+    I2C_Write_EEPROM(0x50, 0x60);
+    I2C_Write_EEPROM(0x51, 0x61);
+    I2C_Write_EEPROM(0x52, 0x62);
+    I2C_Write_EEPROM(0x53, 0x63);
+    I2C_Write_EEPROM(0x54, 0x64);
+
+    I2C_Read_SEQ_EEPROM(0x50, 0x54);
+
+    I2C_Write_EEPROM(0xA0, 0x69);
+    EEPROM_read_data = I2C_Read_EEPROM(0xA0);
+    printf_tiny("\n\r%d\n\r", EEPROM_read_data);
+
+/*
     EEPROM_read_data = I2C_Read_EEPROM(0x30);
+    printf_tiny("\n\rEEPROM read data = %x\n\r", EEPROM_read_data);
     I2C_Write_EEPROM(0xAA, 0x55);
     EEPROM_read_data = I2C_Read_EEPROM(0xAA);
-
+    printf_tiny("\n\rEEPROM read data = %x\n\t", EEPROM_read_data);
+*/
   while(1){
     Test_pin = 0;
     delay_ms(50);
@@ -321,4 +411,27 @@ void main(){
     delay_ms(50);
   }
 }
+
+
+void putchar (char c)
+{
+//	while (!TI);				// compare asm code generated for these three lines
+	while (TI == 0);
+//	while ((SCON & 0x02) == 0);    // wait for TX ready, spin on TI
+	SBUF = c;  	// load serial port with transmit value
+	TI = 0;  	// clear TI flag
+}
+
+
+char getchar ()
+{
+//	char cc;
+//    while (!RI);                // compare asm code generated for these three lines
+//    while ((SCON & 0x01) == 0);  // wait for character to be received, spin on RI
+	while (RI == 0);
+	RI = 0;			// clear RI flag
+	return SBUF;  	// return character from SBUF
+}
+
+
 
