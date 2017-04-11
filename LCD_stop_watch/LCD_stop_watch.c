@@ -39,6 +39,10 @@
 
 char *my_str="ESD_LAB4 BY DHARMIK THAKKAR\0";
 char rx_array[100];
+unsigned char print_flag;
+unsigned char lcd_address=0;
+unsigned end_address = 0;
+unsigned char TIMER_CLOCK=0;
 
 void delay_ms(int delay_t);
 
@@ -77,7 +81,7 @@ char *rx_get_string(void){
 		*(rx_array_ptr+i) = rx_data_char();
 		i++;
 	}
-	*(rx_array_ptr+i) = '\n';
+	*(rx_array_ptr+i) = '\0';
 //	tx_data_string(rx_array);
 	return rx_array;
 }
@@ -215,14 +219,18 @@ void lcdputch(unsigned char cc){
     delay_ms(2);
   //  delay_us(5);
     //check_busy_flag();
-    *WR_LCD_INSTR = cc;
+    if(cc != '\0' && cc != '\r' && cc!= '\n'){
+        *WR_LCD_INSTR = cc;
+    }
+
 
 }
 
 
 
-char read_cursor_addr(){
+char read_cursor_addr() __critical{
     unsigned char temp_rx;
+//    check_busy_flag();
     LCD_RS = 0;
     LCD_RW = 1;
     temp_rx = *RD_LCD_INSTR;
@@ -242,14 +250,24 @@ void wrap_cursor(unsigned char cursor_addr){
     else if(cursor_addr == 0x9F){
         lcdgotoaddr(0xD0);
     }
-    else if(cursor_addr == 0xDF){
+    else if(cursor_addr == end_address){
         lcdgotoaddr(0x80);
     }
+}
+
+void lcdclear(){
+    check_busy_flag();
+    CMD_Write(0x01);
+
+
 }
 
 
 void lcdputstr(char *ss){
     unsigned char i=0, temp_char, temp_addr, wrap=0;
+    print_flag = 0x00;
+   // temp_addr = read_cursor_addr();
+    lcdgotoaddr(lcd_address);
     while(1){
         temp_char = *(ss + i);
         if(temp_char == '\0'){
@@ -257,7 +275,7 @@ void lcdputstr(char *ss){
         }
         else{
             temp_addr = read_cursor_addr();
-            if(temp_addr == 0x8F || temp_addr == 0x9F || temp_addr == 0xCF || temp_addr == 0xDF){
+            if(temp_addr == 0x8F || temp_addr == 0x9F || temp_addr == 0xCF || temp_addr == end_address){
                 wrap = 1;
             }
             else {
@@ -268,12 +286,8 @@ void lcdputstr(char *ss){
         }
         i++;
     }
-
-}
-void lcdclear(){
-    check_busy_flag();
-    CMD_Write(0x01);
-
+    lcd_address = read_cursor_addr();
+    print_flag = 0x01;
 
 }
 
@@ -661,12 +675,8 @@ unsigned char hex_dump(){
 }
 
 void timer0_init(){
-    TMOD |= 0x01; //Timer 0 in mode 2
-    TH0 =  0xDA;
-    TL0 = 0x95;
-    IE = 0x82;
-    TF0 = 0;
-    TR0 = 1;
+    unsigned char temp=0;
+    TIMER_CLOCK = 1;
     lcdgotoaddr(0xD9);
     lcdputch('0');
     lcdputch('0');
@@ -676,12 +686,19 @@ void timer0_init(){
     lcdputch('.');
     lcdputch('0');
 
+    TMOD |= 0x01; //Timer 0 in mode 2
+    TH0 =  0xDA;
+    TL0 = 0x95;
+    IE = 0x82;
+    TF0 = 0;
+    TR0 = 1;
+
 }
 
-void print_time_lcd(unsigned char reset_clock) __critical{
+void print_time_lcd(unsigned char reset_clock, unsigned char print_on) __critical{
     static unsigned char temp_time_ms=0, temp2_time_ms=0, temp2_time_sec=0, temp2_time_min=0, temp2_time_ten_min=0, temp2_time_hour=0;
 //    temp_time_ms = time_ms;
-
+  //
 
     if(reset_clock){
         temp_time_ms=0;
@@ -696,37 +713,41 @@ void print_time_lcd(unsigned char reset_clock) __critical{
         temp_time_ms++;
 
         if(temp_time_ms/10 == 1){
-            lcdgotoaddr(0xDF);
             temp2_time_ms++;
             temp_time_ms = 0;
-            lcdputch(temp2_time_ms%10 + 0x30);
-
-
-
+            if(print_on){
+                lcdgotoaddr(0xDF);
+                lcdputch(temp2_time_ms%10 + 0x30);
+            }
         }
 
 
         if((temp2_time_ms/10) == 1){
-            lcdgotoaddr(0xDD);
+
             temp2_time_sec++;
             temp2_time_ms = 0;
            // temp_time_sec = time_sec % 60;
-            lcdputch(temp2_time_sec%10 + 0x30);
+            if(print_on){
+                lcdgotoaddr(0xDD);
+                lcdputch(temp2_time_sec%10 + 0x30);
+                lcdputch('.');
+            }
 
-            lcdputch('.');
 
 
         }
 
 
         if(temp2_time_sec/10 == 1){
-            lcdgotoaddr(0xDC);
+
             temp2_time_min++;
             temp2_time_sec = 0;
 
             //temp_time_sec = time_sec % 60;
-            lcdputch(temp2_time_min%6 + 0x30);
-
+            if(print_on){
+                    lcdgotoaddr(0xDC);
+                    lcdputch(temp2_time_min%6 + 0x30);
+            }
 
 
         }
@@ -735,31 +756,35 @@ void print_time_lcd(unsigned char reset_clock) __critical{
 
 
         if(temp2_time_min/6 == 1){
-            lcdgotoaddr(0xDA);
+
             temp2_time_ten_min++;
             temp2_time_min =0;
             //temp_time_min = time_min % 60;
-            lcdputch(temp2_time_ten_min%10 + 0x30);
-
-            lcdputch(':');
-
+            if(print_on){
+                lcdgotoaddr(0xDA);
+                lcdputch(temp2_time_ten_min%10 + 0x30);
+                lcdputch(':');
+            }
 
         }
 
 
 
         if(temp2_time_ten_min/10 == 1){
-            lcdgotoaddr(0xD9);
+
             temp2_time_hour++;
             temp2_time_ten_min = 0;
            // temp_time_min = time_min % 60;
-            lcdputch((temp2_time_hour%6) + 0x30);
-
+            if(print_on){
+                lcdgotoaddr(0xD9);
+                lcdputch((temp2_time_hour%6) + 0x30);
+            }
 
         }
     }
 
-    //    printf_tiny("\r%d:%d.%d\n", time_min%60, time_sec%60, time_ms/10);
+  //  lcdgotoaddr(lcd_address);
+        //    printf_tiny("\r%d:%d.%d\n", time_min%60, time_sec%60, time_ms/10);
 
 }
 
@@ -776,13 +801,18 @@ void reset_timeclock(){
     TR0 = 0;
     IE = 0;
     timer0_init();
-    print_time_lcd(1);
+    print_time_lcd(1, print_flag);
 
 }
 
 void restart_timeclock(){
     TR0 = 1;
     IE = 0x82;
+}
+
+void print_menu() __critical{
+    printf_tiny("\r1:Press 1 Write To EEPROM\n\r2:Press 2 to Read from the EEPROM\n\r3:Press 3 to get the EEPROM HEX DUMP\n\r4:Press 4 to clear the LCD\n\r5:Press 5 to get the LCD DDRAM HEX DUMP\n\r6:Press 6 to get the LCD CGRAM HEX DUMP\n\r7:Press 7 to print a string on the LCD\n\r8:Press 8 to go to the desired X,Y coordinate on the LCD\n\r9:Press 9 to go on the desired address location in LCD\n\rP:Press P to STOP the time-clock\n\rR:Press R to RESET the time-clock\n\rS:Press S to RESTART the time-clock\n\n\n\n\n\r");
+
 }
 
 void main(){
@@ -796,6 +826,7 @@ void main(){
     unsigned char y_co=0;
     unsigned char invalid_bit = 0;
     int i=0;
+    lcd_address = 0x80;
 
     TMOD |= 0x20;    //Timer 1 in mode 2
 	TH1 = -3;       //Baud rate = 9600
@@ -805,6 +836,7 @@ void main(){
     printf_tiny("\n\rStart\n\r");
     lcdinit();
     lcdgotoxy(0, 0);
+    print_flag = 0x01;
    // lcd_ddram_hexdump();
     //delay_ms(1000);
     //lcdgotoxy(0, 0);
@@ -819,8 +851,14 @@ void main(){
     timer0_init();
 
     I2C_init();
+    if(TIMER_CLOCK){
+        end_address = 0xD8;
+    }
+    else{
+        end_address = 0xDF;
+    }
     while(1){
-        printf_tiny("\r1:Press 1 Write To EEPROM\n\r2:Press 2 to Read from the EEPROM\n\r3:Press 3 to get the EEPROM HEX DUMP\n\r4:Press 4 to clear the LCD\n\r5:Press 5 to get the LCD DDRAM HEX DUMP\n\r6:Press 6 to get the LCD CGRAM HEX DUMP\n\r7:Press 7 to print a string on the LCD\n\r8:Press 8 to go to the desired X,Y coordinate on the LCD\n\r9:Press 9 to go on the desired address location in LCD\n\rP:Press P to STOP the time-clock\n\rR:Press R to RESET the time-clock\n\rS:Press S to RESTART the time-clock\n\n\n\n\n\r");
+        print_menu();
         temp = rx_data_char();
         switch(temp){
         case '1':
@@ -977,7 +1015,7 @@ void timer0_zero(void) __interrupt (1)
     else{
         Test_pin = 1;
     }
-    print_time_lcd(0);
+    print_time_lcd(0, print_flag);
    // printf_tiny("\rIn timer ISR\n");
 
 }
