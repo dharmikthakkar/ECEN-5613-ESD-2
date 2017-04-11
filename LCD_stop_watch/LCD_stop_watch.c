@@ -94,17 +94,20 @@ void delay_us(int delay_t_us){
 }
 
 void delay_ms(int delay_t){
-    int i=0;
+    int i=0, j=0;
     for(i=0; i<delay_t; i++){
+/*
         TR0 = 0;
         TF0 = 0;
-        TMOD |= 0x01;
+        TMOD = 0x01;
         TL0 =  0x89;
         TH0 = 0xFC;
         TR0 = 1;
         while(!TF0);
         TR0 = 0;
         TF0 = 0;
+*/
+        for(j=0; j<121; j++);
     }
 
 }
@@ -150,10 +153,13 @@ void CMD_Write(unsigned char cmd_data){
 
 void lcdinit(){
     delay_ms(20);
+    //delay_us(20);
     CMD_Write(0x30);
     delay_ms(6);
+    //delay_us(10);
     CMD_Write(0x30);
     delay_ms(1);
+    //delay_us(1);
     CMD_Write(0x30);
    // delay_ms(1);
     check_busy_flag();
@@ -207,6 +213,7 @@ void lcdputch(unsigned char cc){
     LCD_RS = 1;
     LCD_RW = 0;
     delay_ms(2);
+  //  delay_us(5);
     //check_busy_flag();
     *WR_LCD_INSTR = cc;
 
@@ -268,6 +275,66 @@ void lcdclear(){
     CMD_Write(0x01);
 
 
+}
+
+void lcd_cgram_hexdump(void){
+    unsigned char i=0, j=0, temp;
+    printf_tiny("\rHEX DUMP FOR LCD CGRAM.\n\r(All values are in HEX FORMAT)\n");
+    for(i=0; i<3; i++){
+        printf_tiny("\n");
+        printf_tiny("\r");
+        temp = temp + (i*16);
+        my_print(temp, 2);
+        printf_tiny(": ");
+        for(j=16*i; j<((i*16)+16); j++){
+            check_busy_flag();
+            LCD_RS = 0;
+            LCD_RW = 0;
+            *WR_LCD_INSTR = 0x40 | j;
+            check_busy_flag();
+            LCD_RS=1;
+            LCD_RW=1;
+            my_print(*RD_LCD_INSTR, 2);
+            printf_tiny("  ");
+        }
+        printf_tiny("\n");
+    }
+    printf_tiny("\n");
+}
+
+
+
+void lcd_ddram_hexdump(void){
+    unsigned char i=0,j=0;
+    unsigned char temp=0;
+    lcdgotoxy(0,0);
+    printf_tiny("\rHEX DUMP FOR LCD DDRAM.\n\r(All values are in HEX FORMAT)\n");
+    LCD_RS = 1;
+    LCD_RW = 1;
+    for(i=0; i<=3; i++){
+        lcdgotoxy(i,0);
+        temp = (read_cursor_addr() & 0x7F);
+        //temp = temp + (i*16);
+        printf_tiny("\n");
+        printf_tiny("\r");
+       // printf_tiny("temp=%x\n", temp);
+        my_print(temp, 2);
+        printf_tiny(": ");
+        //printf("\r%04X: ", temp);
+            //printf_tiny("\r%d: ", temp);
+
+        for(j=0; j<=15; j++){
+            lcdgotoxy(i,j);
+            check_busy_flag();
+            LCD_RS=1;
+            LCD_RW=1;
+            my_print(*RD_LCD_INSTR, 2);
+            printf_tiny("  ");
+            //printf("%02X  ",*(buffer[0].buf+j));
+        }
+        printf_tiny("\n");
+    }
+    printf_tiny("\n");
 }
 
 void I2C_init(void){
@@ -496,6 +563,7 @@ unsigned char write_menu(void){
     I2C_Write_EEPROM(user_addr, (unsigned char)user_d);
     user_d = (int)I2C_Read_EEPROM(user_addr);
     printf_tiny("\rData written = 0x%x at location 0x%x\n", user_d, user_addr);
+    return 0;
 }
 
 unsigned char read_menu(){
@@ -521,6 +589,7 @@ unsigned char read_menu(){
     printf_tiny(":");
     my_print(user_d, 2);
     printf_tiny("\n\n\n");
+    return 0;
 }
 
 
@@ -529,6 +598,7 @@ unsigned char hex_dump(){
     unsigned char *user_data;
     unsigned int user_addr_start=0,user_addr_end=0, user_d = 0;
     unsigned int i=0, j=0, temp=0, temp2=0;
+
     do{
         printf_tiny("\Hex Dump Mode Entered!\n\rEnter valid start address between 000 (Hex) to 7FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
         user_address = rx_get_string();
@@ -587,26 +657,131 @@ unsigned char hex_dump(){
         printf_tiny("\n");
     }
     printf_tiny("\n");
+    return 0;
+}
+
+void timer0_init(){
+    TMOD |= 0x01; //Timer 0 in mode 2
+    TH0 =  0xDA;
+    TL0 = 0x95;
+    IE = 0x82;
+    TF0 = 0;
+    TR0 = 1;
+
+}
+
+void print_time_lcd() __critical{
+    static unsigned char temp_time_ms=0, temp2_time_ms=0, temp2_time_sec=0, temp2_time_min=0, temp2_time_ten_min=0, temp2_time_hour=0;
+    temp_time_ms++;
+//    temp_time_ms = time_ms;
+
+
+
+
+
+    if(temp_time_ms/10 == 1){
+        lcdgotoaddr(0xDF);
+        temp2_time_ms++;
+        temp_time_ms = 0;
+        lcdputch(temp2_time_ms%10 + 0x30);
+
+
+
+    }
+
+
+    if((temp2_time_ms/10) == 1){
+        lcdgotoaddr(0xDD);
+        temp2_time_sec++;
+        temp2_time_ms = 0;
+       // temp_time_sec = time_sec % 60;
+        lcdputch(temp2_time_sec%10 + 0x30);
+
+        lcdputch('.');
+
+
+    }
+
+
+    if(temp2_time_sec/10 == 1){
+        lcdgotoaddr(0xDC);
+        temp2_time_min++;
+        temp2_time_sec = 0;
+
+        //temp_time_sec = time_sec % 60;
+        lcdputch(temp2_time_min%6 + 0x30);
+
+
+
+    }
+
+
+
+
+    if(temp2_time_min/6 == 1){
+        lcdgotoaddr(0xDA);
+        temp2_time_ten_min++;
+        temp2_time_min =0;
+        //temp_time_min = time_min % 60;
+        lcdputch(temp2_time_ten_min%10 + 0x30);
+
+        lcdputch(':');
+
+
+    }
+
+
+
+    if(temp2_time_ten_min/10 == 1){
+        lcdgotoaddr(0xD9);
+        temp2_time_hour++;
+        temp2_time_ten_min = 0;
+       // temp_time_min = time_min % 60;
+        lcdputch((temp2_time_hour%6) + 0x30);
+
+
+    }
+
+//    printf_tiny("\r%d:%d.%d\n", time_min%60, time_sec%60, time_ms/10);
+
 }
 
 void main(){
+    unsigned char *user_address;
+    unsigned char *user_data;
+    unsigned int user_addr=0, user_d = 0;
     unsigned char EEPROM_read_data = 0, temp = 0;
+    unsigned char mystr3[]= "HELLO ESD_LAB4 BY DHARMIK THAKKAR REQUIRED ELEMENTS I2C AND LCD";
+    unsigned char *mystring;
+    unsigned char x_co=0;
+    unsigned char y_co=0;
+    unsigned char invalid_bit = 0;
     int i=0;
 
-    TMOD = 0x20;    //Timer 1 in mode 2
+    TMOD |= 0x20;    //Timer 1 in mode 2
 	TH1 = -3;       //Baud rate = 9600
 	SCON = 0x50;
 	TI=1;
 	TR1 = 1;
+    timer0_init();
     printf_tiny("\n\rStart\n\r");
     lcdinit();
-    lcdgotoxy(3, 6);
-    lcdputstr(my_str);
+    lcdgotoxy(0, 0);
+   // lcd_ddram_hexdump();
+    //delay_ms(1000);
+    //lcdgotoxy(0, 0);
+    //lcdputstr(mystr3);
+    //lcd_ddram_hexdump();
    // delay_ms(2000);
-    lcdclear();
+    //lcd_cgram_hexdump();
+    //delay_ms(20000);
+
+    //lcdclear();
+   // lcd_ddram_hexdump();
+
     I2C_init();
     while(1){
-        printf_tiny("\r1:Press 1 Write To EEPROM\n\r2:Press 2 to Read from the EEPROM\n\r3:Press 3 to get the HEX DUMP\n\n\n\r");
+        printf_tiny("\r1:Press 1 Write To EEPROM\n\r2:Press 2 to Read from the EEPROM\n\r3:Press 3 to get the EEPROM HEX DUMP\n\r4:Press 4 to clear the LCD\n\r5:Press 5 to get the LCD DDRAM HEX DUMP\n\r6:Press 6 to get the LCD CGRAM HEX DUMP\n\r7:Press 7 to print a string on the LCD\n\r8:Press 8 to go to the desired X,Y coordinate on the LCD\n\r9:Press 9 to go on the desired address location in LCD\n\r");
         temp = rx_data_char();
         switch(temp){
         case '1':
@@ -618,18 +793,107 @@ void main(){
         case '3':
             hex_dump();
             break;
+        case '4':
+            lcdclear();
+            break;
+        case '5':
+            lcd_ddram_hexdump();
+            break;
+        case '6':
+            lcd_cgram_hexdump();
+            break;
+        case '7':
+            printf_tiny("\rEnter the string. Press backspace (followed by enter) to exit to main menu\n");
+            mystring = rx_get_string();
+            if(rx_array[0] == 0x08){
+                break;
+            }
+            lcdputstr(rx_array);
+            break;
+        case '8':
+            do{
+                do{
+                    if(invalid_bit == 2){
+                        break;
+                    }
+                    invalid_bit = 0;
+                    printf_tiny("\rEnter the X-coordinate (between 0 and 3)\n\rPress backspace to exit to main menu\n\r");
+                    x_co = rx_data_char();
+                    if(x_co == 0x08){
+                        invalid_bit = 0x08;
+                        break;
+                    }
+                    else if(x_co < 0x30 || x_co > 0x33){
+                        printf_tiny("\rInvalid data\n");
+                        invalid_bit =1;
+                        break;
+                    }
+                }while(x_co < 0x30 || x_co > 0x33);
+                do{
+                    if(invalid_bit == 1 || invalid_bit == 0x08){
+                        break;
+                    }
+                    invalid_bit = 0;
+                    x_co = x_co - 0x30;
+                    printf_tiny("\rEnter the Y-coordinate (between 00 and 15 ( enter in 2 digits))\n\rPress backspace to exit to main menu\n\r");
+                    y_co = rx_data_char();
+                    if(y_co == 0x08){
+                        invalid_bit = 0x08;
+                        break;
+                    }
+                    else if(y_co < 0x30 || y_co > 0x31){
+                        printf_tiny("\rInvalid data\n");
+                        invalid_bit = 2;
+                        break;
+                    }
+                    y_co = y_co - 0x30;
+                    temp = rx_data_char();
+                    if(temp == 0x08){
+                        invalid_bit = 0x08;
+                        break;
+                    }
+                    temp = temp - 0x30;
+                    if(temp > 5){
+                        printf_tiny("\rInvalid data\n");
+                        invalid_bit = 2;
+                        break;
+                    }
+                    y_co = (y_co*10) + temp;
+                    printf_tiny("\ry_co=%d, temp=%d\n", y_co, temp);
+                    invalid_bit = 0;
+                }while(y_co > 15);
+                if(invalid_bit == 0){
+                    lcdgotoxy(x_co, y_co);
+                    break;
+                }
+            }while(invalid_bit != 0x08);
+            break;
+        case '9':
+            do{
+                invalid_bit = 0;
+                printf_tiny("\rEnter the address.\n\rBetween:i. 00 and 0F\n\rii. 40 and 4F\n\riii. 10 and 1F\n\riv 50 and 5F\n\r(all values in HEX FORMAT)\n\r");
+                user_data = rx_get_string();
+                if(rx_array[0] == 0x08){
+                    break;
+                }
+                printf_tiny("\rAddress received = 0x%s\n", rx_array);
+                user_d = stoh(user_data);
+                if((user_d >=0x00 && user_d <=0x0F) || (user_d >=0x4F && user_d <=0x4F) || (user_d >=0x10 && user_d <=0x1F) || (user_d >=0x50 && user_d <=0x5F)){
+                        lcdgotoaddr(user_d);
+                }
+                else{
+                    printf_tiny("\rInvalid input. Enter a valid input\n\r");
+                    invalid_bit = 1;
+                }
+            }while(invalid_bit == 1);
+
+            break;
         default:
             printf_tiny("\rInvalid input. Enter a valid input\n\r");
             break;
         }
 
     }
-  while(1){
-    Test_pin = 0;
-    delay_ms(50);
-    Test_pin = 1;
-    delay_ms(50);
-  }
 }
 
 
@@ -652,6 +916,24 @@ char getchar ()
 	RI = 0;			// clear RI flag
 	return SBUF;  	// return character from SBUF
 }
+
+
+
+void timer0_zero(void) __interrupt (1)
+{
+    TH0 = 0xDB;
+    TL0 = 0xF5;
+    if(Test_pin == 1){
+        Test_pin =0;
+    }
+    else{
+        Test_pin = 1;
+    }
+    print_time_lcd();
+   // printf_tiny("\rIn timer ISR\n");
+
+}
+
 
 
 
