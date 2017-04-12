@@ -55,6 +55,7 @@ unsigned char print_flag;
 unsigned char lcd_address=0;
 unsigned end_address = 0;
 unsigned char TIMER_CLOCK=0;
+volatile unsigned char count_value=0;
 
 enum IOE_PIN_DIR{
     Output=0x00,
@@ -846,9 +847,11 @@ void timer0_init(){
     TMOD |= 0x01; //Timer 0 in mode 2
     TH0 =  0xDA;
     TL0 = 0x95;
-    IE = 0x82;
+    IE = 0x83;
     TF0 = 0;
     TR0 = 1;
+    IT0 = 1;   // Configure interrupt 0 for falling edge on /INT0 (P3.2)
+
     lcd_address = 0x80;
     lcdgotoaddr(temp_addr);
 
@@ -1367,6 +1370,7 @@ void status_IOE(){
 
 void print_menu() __critical{
 
+    printf_tiny("\n\n\n\n\r");
     printf_tiny("\r1:Press 1 Write To EEPROM\n");
     printf_tiny("\r2:Press 2 to Read from the EEPROM\n");
     printf_tiny("\r3:Press 3 to get the EEPROM HEX DUMP\n");
@@ -1415,6 +1419,7 @@ void main(){
     IOE_pins.P6_STATE=Low;
     IOE_pins.P7_DIR=Output;
     IOE_pins.P7_STATE=Low;
+    count_value = 0;
 
 
     TMOD |= 0x20;    //Timer 1 in mode 2
@@ -1427,6 +1432,7 @@ void main(){
     lcdgotoxy(0, 0);
     print_flag = 0x01;
    // delay_ms(2000);
+
 
 
    // lcd_ddram_hexdump();
@@ -1523,7 +1529,7 @@ void main(){
                         break;
                     }
                     temp = temp - 0x30;
-                    if(temp > 5){
+                    if(y_co == 0 && temp > 9 || y_co == 1 && temp > 5){
                         printf_tiny("\rInvalid data\n");
                         invalid_bit = 2;
                         break;
@@ -1627,6 +1633,23 @@ void timer0_zero(void) __interrupt (1)
    // printf_tiny("\rIn timer ISR\n");
 
 }
+
+
+void isr_zero(void) __interrupt (0)
+{
+    unsigned char temp= 0;
+    printf_tiny("\rCount value=%x\n", count_value & 0x0F);
+    IOE_pins.P4_STATE = count_value & 0x01;
+    IOE_pins.P5_STATE = (count_value & 0x02)>>1;
+    IOE_pins.P6_STATE = (count_value & 0x04)>>2;
+    IOE_pins.P7_STATE = (count_value & 0x08)>>3;
+    temp = (IOE_pins.P0_STATE & P0_MASK) | ((IOE_pins.P1_STATE<<1) & P1_MASK) | ((IOE_pins.P2_STATE<<2) & P2_MASK) | ((IOE_pins.P3_STATE<<3) & P3_MASK) | ((IOE_pins.P4_STATE<<4) & P4_MASK) | ((IOE_pins.P5_STATE<<5) & P5_MASK) | ((IOE_pins.P6_STATE<<6) & P6_MASK) | ((IOE_pins.P7_STATE<<7) & P7_MASK);
+    I2C_Write_IOE(temp);
+    count_value++;
+
+
+}
+
 
 
 
