@@ -190,11 +190,25 @@ void lcdgotoaddr(unsigned char addr){
     LCD_RS = 0;
     LCD_RW = 0;
     *WR_LCD_INSTR = addr;
+    lcd_address = addr;
 
 
 }
 
-/* cursor manipulated here */
+
+
+/*cursor manipulated here */
+void lcdgotoaddrtimer(unsigned char addr){
+    addr = addr | 0x80;
+    check_busy_flag();
+    LCD_RS = 0;
+    LCD_RW = 0;
+    *WR_LCD_INSTR = addr;
+   // lcd_address = addr;
+
+
+}
+
 void lcdgotocgramaddr(unsigned char addr){
     addr = (addr<<3) | 0x40;
     check_busy_flag();
@@ -221,42 +235,9 @@ void lcdgotoxy(unsigned char row, unsigned char column){
         temp_address = 0xD0 + column;
     }
     lcdgotoaddr(temp_address);
-
-
-}
-
-/* cursor manipulated here */
-void lcdputch(unsigned char cc){
-    check_busy_flag();
-    LCD_RS = 1;
-   // LCD_RW = 1;
-   // delay_ms(1);
-    LCD_RW = 0;
-    delay_ms(2);
-  //  delay_us(5);
-    //check_busy_flag();
-    if(cc != '\0' && cc != '\r' && cc!= '\n'){
-        *WR_LCD_INSTR = cc;
-    }
+   // lcd_address = temp_address;
 
 }
-
-/* cursor manipulated here */
-void lcdputchcustom(unsigned char cc){
-    check_busy_flag();
-    LCD_RS = 1;
-   // LCD_RW = 1;
-   // delay_ms(1);
-    LCD_RW = 0;
-    delay_ms(2);
-  //  delay_us(5);
-    //check_busy_flag();
-   // if(cc != '\0' && cc != '\r' && cc!= '\n'){
-        *WR_LCD_INSTR = cc;
-   // }
-
-}
-
 
 
 unsigned char read_cursor_addr() __critical{
@@ -295,18 +276,85 @@ void lcdclear(){
 
 }
 
+
+/* cursor manipulated here */
+void lcdputch(unsigned char cc){
+    unsigned char temp_addr=0;
+    check_busy_flag();
+
+  //  delay_us(5);
+    //check_busy_flag();
+    if(cc != '\0' && cc != '\r' && cc!= '\n'){
+        lcdgotoaddr(lcd_address);
+        temp_addr = read_cursor_addr();
+/*
+        if(temp_addr == 0x8F || temp_addr == 0x9F || temp_addr == 0xCF || temp_addr == end_address){
+            wrap = 1;
+        }
+        else {
+            wrap = 0;
+        }
+        //lcdputch(temp_char);
+
+*/
+        LCD_RS = 1;
+       // LCD_RW = 1;
+       // delay_ms(1);
+        LCD_RW = 0;
+        delay_ms(2);
+        *WR_LCD_INSTR = cc;
+        lcd_address++;
+        wrap_cursor(temp_addr);
+    }
+
+}
+
+/* cursor manipulated here */
+void lcdputchcustom(unsigned char cc){
+    check_busy_flag();
+    LCD_RS = 1;
+   // LCD_RW = 1;
+   // delay_ms(1);
+    LCD_RW = 0;
+    delay_ms(2);
+  //  delay_us(5);
+    //check_busy_flag();
+   // if(cc != '\0' && cc != '\r' && cc!= '\n'){
+        *WR_LCD_INSTR = cc;
+   // }
+
+}
+
+/* cursor manipulated here */
+void lcdputchtimer(unsigned char cc){
+    check_busy_flag();
+    LCD_RS = 1;
+   // LCD_RW = 1;
+   // delay_ms(1);
+    LCD_RW = 0;
+    delay_ms(2);
+  //  delay_us(5);
+    //check_busy_flag();
+    if(cc != '\0' && cc != '\r' && cc!= '\n'){
+        *WR_LCD_INSTR = cc;
+    }
+
+}
+
+
 /* cursor position manipulated here */
 void lcdputstr(char *ss){
     unsigned char i=0, temp_char, temp_addr, wrap=0;
     print_flag = 0x00;
    // temp_addr = read_cursor_addr();
-    lcdgotoaddr(lcd_address);
+//    lcdgotoaddr(lcd_address);
     while(1){
         temp_char = *(ss + i);
         if(temp_char == '\0'){
             break;
         }
         else{
+  /*
             temp_addr = read_cursor_addr();
             if(temp_addr == 0x8F || temp_addr == 0x9F || temp_addr == 0xCF || temp_addr == end_address){
                 wrap = 1;
@@ -314,12 +362,13 @@ void lcdputstr(char *ss){
             else {
                 wrap = 0;
             }
+   */
             lcdputch(temp_char);
-            wrap_cursor(temp_addr);
+    //        wrap_cursor(temp_addr);
         }
         i++;
     }
-    lcd_address = read_cursor_addr();
+//    lcd_address = read_cursor_addr();
     print_flag = 0x01;
 
 }
@@ -714,14 +763,14 @@ void timer0_init(){
     unsigned char temp=0, temp_addr = 0;
     temp_addr = read_cursor_addr();
     TIMER_CLOCK = 1;
-    lcdgotoaddr(0xD9);
-    lcdputch('0');
-    lcdputch('0');
-    lcdputch(':');
-    lcdputch('0');
-    lcdputch('0');
-    lcdputch('.');
-    lcdputch('0');
+    lcdgotoaddrtimer(0xD9);
+    lcdputchtimer('0');
+    lcdputchtimer('0');
+    lcdputchtimer(':');
+    lcdputchtimer('0');
+    lcdputchtimer('0');
+    lcdputchtimer('.');
+    lcdputchtimer('0');
 
     TMOD |= 0x01; //Timer 0 in mode 2
     TH0 =  0xDA;
@@ -755,8 +804,8 @@ void print_time_lcd(unsigned char reset_clock, unsigned char print_on) __critica
             temp2_time_ms++;
             temp_time_ms = 0;
             if(print_on){
-                lcdgotoaddr(0xDF);
-                lcdputch(temp2_time_ms%10 + 0x30);
+                lcdgotoaddrtimer(0xDF);
+                lcdputchtimer(temp2_time_ms%10 + 0x30);
             }
         }
 
@@ -767,9 +816,9 @@ void print_time_lcd(unsigned char reset_clock, unsigned char print_on) __critica
             temp2_time_ms = 0;
            // temp_time_sec = time_sec % 60;
             if(print_on){
-                lcdgotoaddr(0xDD);
-                lcdputch(temp2_time_sec%10 + 0x30);
-                lcdputch('.');
+                lcdgotoaddrtimer(0xDD);
+                lcdputchtimer(temp2_time_sec%10 + 0x30);
+                lcdputchtimer('.');
             }
 
 
@@ -784,8 +833,8 @@ void print_time_lcd(unsigned char reset_clock, unsigned char print_on) __critica
 
             //temp_time_sec = time_sec % 60;
             if(print_on){
-                    lcdgotoaddr(0xDC);
-                    lcdputch(temp2_time_min%6 + 0x30);
+                    lcdgotoaddrtimer(0xDC);
+                    lcdputchtimer(temp2_time_min%6 + 0x30);
             }
 
 
@@ -800,9 +849,9 @@ void print_time_lcd(unsigned char reset_clock, unsigned char print_on) __critica
             temp2_time_min =0;
             //temp_time_min = time_min % 60;
             if(print_on){
-                lcdgotoaddr(0xDA);
-                lcdputch(temp2_time_ten_min%10 + 0x30);
-                lcdputch(':');
+                lcdgotoaddrtimer(0xDA);
+                lcdputchtimer(temp2_time_ten_min%10 + 0x30);
+                lcdputchtimer(':');
             }
 
         }
@@ -815,8 +864,8 @@ void print_time_lcd(unsigned char reset_clock, unsigned char print_on) __critica
             temp2_time_ten_min = 0;
            // temp_time_min = time_min % 60;
             if(print_on){
-                lcdgotoaddr(0xD9);
-                lcdputch((temp2_time_hour%6) + 0x30);
+                lcdgotoaddrtimer(0xD9);
+                lcdputchtimer((temp2_time_hour%6) + 0x30);
             }
 
         }
@@ -850,7 +899,7 @@ void restart_timeclock(){
 }
 
 void lcdcreatechar(unsigned char ccode, unsigned char row_vals[]){
-    unsigned char i;
+    unsigned char i, temp_addr=0;
 
     printf_tiny("\rccode=%d\n", ccode);
     for(i=0; i<8; i++){
@@ -858,7 +907,8 @@ void lcdcreatechar(unsigned char ccode, unsigned char row_vals[]){
 
     }
 
-
+    lcdgotoaddr(lcd_address);
+    temp_addr = read_cursor_addr();
     lcdgotocgramaddr(ccode);
     for(i=0; i<8; i++){
         lcdputchcustom(row_vals[i]);
@@ -867,7 +917,12 @@ void lcdcreatechar(unsigned char ccode, unsigned char row_vals[]){
 
     lcdgotoaddr(lcd_address);
     delay_ms(2);
+
     lcdputchcustom(ccode);
+
+    lcd_address++;
+    wrap_cursor(temp_addr);
+   // lcdputch(ccode);
 
 }
 
