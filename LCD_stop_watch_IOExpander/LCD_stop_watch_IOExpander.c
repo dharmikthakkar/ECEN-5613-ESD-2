@@ -1234,25 +1234,25 @@ void status_IOE(){
         IOE_pins.P0_STATE = temp & P0_MASK;
     }
     if(IOE_pins.P1_DIR == Input){
-        IOE_pins.P1_STATE = (temp<<1) & P1_MASK;
+        IOE_pins.P1_STATE = (temp & P1_MASK) >> 1;
     }
     if(IOE_pins.P2_DIR == Input){
-        IOE_pins.P2_STATE = (temp<<2) & P2_MASK;
+        IOE_pins.P2_STATE = (temp & P2_MASK) >> 2;
     }
     if(IOE_pins.P3_DIR == Input){
-        IOE_pins.P3_STATE = (temp<<3) & P3_MASK;
+        IOE_pins.P3_STATE = (temp & P3_MASK) >> 3;
     }
     if(IOE_pins.P4_DIR == Input){
-        IOE_pins.P4_STATE = (temp<<4) & P4_MASK;
+        IOE_pins.P4_STATE = (temp & P4_MASK) >> 4;
     }
     if(IOE_pins.P5_DIR == Input){
-        IOE_pins.P5_STATE = (temp<<5) & P5_MASK;
+        IOE_pins.P5_STATE = (temp & P5_MASK) >> 5;
     }
     if(IOE_pins.P6_DIR == Input){
-        IOE_pins.P6_STATE = (temp<<6) & P6_MASK;
+        IOE_pins.P6_STATE = (temp & P6_MASK) >> 6;
     }
     if(IOE_pins.P7_DIR == Input){
-        IOE_pins.P7_STATE = (temp<<7) & P7_MASK;
+        IOE_pins.P7_STATE = (temp & P7_MASK) >> 7;
     }
 
     printf_tiny("\rStatus of I/O Expander Port\n\n");
