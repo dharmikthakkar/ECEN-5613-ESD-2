@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<FileVersion major="1" minor="0" />
+	<ActiveTarget name="Release" />
+	<File name="main.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2737" topLine="93" />
+		</Cursor>
+		<Folding>
+			<Collapse line="97" />
+			<Collapse line="106" />
+			<Collapse line="113" />
+			<Collapse line="121" />
+			<Collapse line="136" />
+			<Collapse line="145" />
+			<Collapse line="164" />
+			<Collapse line="182" />
+			<Collapse line="197" />
+			<Collapse line="204" />
+			<Collapse line="232" />
+			<Collapse line="246" />
+			<Collapse line="257" />
+			<Collapse line="268" />
+			<Collapse line="288" />
+			<Collapse line="301" />
+			<Collapse line="317" />
+			<Collapse line="326" />
+			<Collapse line="358" />
+			<Collapse line="374" />
+			<Collapse line="391" />
+			<Collapse line="422" />
+			<Collapse line="449" />
+			<Collapse line="484" />
+			<Collapse line="495" />
+			<Collapse line="503" />
+			<Collapse line="511" />
+			<Collapse line="520" />
+			<Collapse line="528" />
+			<Collapse line="551" />
+			<Collapse line="562" />
+			<Collapse line="601" />
+			<Collapse line="617" />
+			<Collapse line="646" />
+			<Collapse line="657" />
+			<Collapse line="670" />
+			<Collapse line="679" />
+			<Collapse line="706" />
+			<Collapse line="740" />
+			<Collapse line="767" />
+			<Collapse line="835" />
+			<Collapse line="849" />
+			<Collapse line="875" />
+			<Collapse line="969" />
+			<Collapse line="976" />
+			<Collapse line="985" />
+			<Collapse line="990" />
+			<Collapse line="1018" />
+			<Collapse line="1078" />
+			<Collapse line="1119" />
+			<Collapse line="1158" />
+			<Collapse line="1194" />
+			<Collapse line="1248" />
+			<Collapse line="1386" />
+			<Collapse line="1410" />
+			<Collapse line="1617" />
+			<Collapse line="1627" />
+			<Collapse line="1639" />
+			<Collapse line="1658" />
+		</Folding>
+	</File>
+</CodeBlocks_layout_file>

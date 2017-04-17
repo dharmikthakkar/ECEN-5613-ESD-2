@@ -1,0 +1,2093 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : FreeWare ANSI-C Compiler
+                              3 ; Version 2.6.0 #4309 (Jul 28 2006)
+                              4 ; This file generated Sun Apr 16 17:34:18 2017
+                              5 ;--------------------------------------------------------
+                              6 	.module EEPROM_UI
+                              7 	.optsdcc -mmcs51 --model-large
+                              8 	
+                              9 ;--------------------------------------------------------
+                             10 ; Public variables in this module
+                             11 ;--------------------------------------------------------
+                             12 	.globl _TF1
+                             13 	.globl _TR1
+                             14 	.globl _TF0
+                             15 	.globl _TR0
+                             16 	.globl _IE1
+                             17 	.globl _IT1
+                             18 	.globl _IE0
+                             19 	.globl _IT0
+                             20 	.globl _SM0
+                             21 	.globl _SM1
+                             22 	.globl _SM2
+                             23 	.globl _REN
+                             24 	.globl _TB8
+                             25 	.globl _RB8
+                             26 	.globl _TI
+                             27 	.globl _RI
+                             28 	.globl _CY
+                             29 	.globl _AC
+                             30 	.globl _F0
+                             31 	.globl _RS1
+                             32 	.globl _RS0
+                             33 	.globl _OV
+                             34 	.globl _F1
+                             35 	.globl _P
+                             36 	.globl _RD
+                             37 	.globl _WR
+                             38 	.globl _T1
+                             39 	.globl _T0
+                             40 	.globl _INT1
+                             41 	.globl _INT0
+                             42 	.globl _TXD0
+                             43 	.globl _TXD
+                             44 	.globl _RXD0
+                             45 	.globl _RXD
+                             46 	.globl _P3_7
+                             47 	.globl _P3_6
+                             48 	.globl _P3_5
+                             49 	.globl _P3_4
+                             50 	.globl _P3_3
+                             51 	.globl _P3_2
+                             52 	.globl _P3_1
+                             53 	.globl _P3_0
+                             54 	.globl _P2_7
+                             55 	.globl _P2_6
+                             56 	.globl _P2_5
+                             57 	.globl _P2_4
+                             58 	.globl _P2_3
+                             59 	.globl _P2_2
+                             60 	.globl _P2_1
+                             61 	.globl _P2_0
+                             62 	.globl _P1_7
+                             63 	.globl _P1_6
+                             64 	.globl _P1_5
+                             65 	.globl _P1_4
+                             66 	.globl _P1_3
+                             67 	.globl _P1_2
+                             68 	.globl _P1_1
+                             69 	.globl _P1_0
+                             70 	.globl _P0_7
+                             71 	.globl _P0_6
+                             72 	.globl _P0_5
+                             73 	.globl _P0_4
+                             74 	.globl _P0_3
+                             75 	.globl _P0_2
+                             76 	.globl _P0_1
+                             77 	.globl _P0_0
+                             78 	.globl _PS
+                             79 	.globl _PT1
+                             80 	.globl _PX1
+                             81 	.globl _PT0
+                             82 	.globl _PX0
+                             83 	.globl _EA
+                             84 	.globl _ES
+                             85 	.globl _ET1
+                             86 	.globl _EX1
+                             87 	.globl _ET0
+                             88 	.globl _EX0
+                             89 	.globl _BREG_F7
+                             90 	.globl _BREG_F6
+                             91 	.globl _BREG_F5
+                             92 	.globl _BREG_F4
+                             93 	.globl _BREG_F3
+                             94 	.globl _BREG_F2
+                             95 	.globl _BREG_F1
+                             96 	.globl _BREG_F0
+                             97 	.globl _P5_7
+                             98 	.globl _P5_6
+                             99 	.globl _P5_5
+                            100 	.globl _P5_4
+                            101 	.globl _P5_3
+                            102 	.globl _P5_2
+                            103 	.globl _P5_1
+                            104 	.globl _P5_0
+                            105 	.globl _P4_7
+                            106 	.globl _P4_6
+                            107 	.globl _P4_5
+                            108 	.globl _P4_4
+                            109 	.globl _P4_3
+                            110 	.globl _P4_2
+                            111 	.globl _P4_1
+                            112 	.globl _P4_0
+                            113 	.globl _PX0L
+                            114 	.globl _PT0L
+                            115 	.globl _PX1L
+                            116 	.globl _PT1L
+                            117 	.globl _PLS
+                            118 	.globl _PT2L
+                            119 	.globl _PPCL
+                            120 	.globl _EC
+                            121 	.globl _CCF0
+                            122 	.globl _CCF1
+                            123 	.globl _CCF2
+                            124 	.globl _CCF3
+                            125 	.globl _CCF4
+                            126 	.globl _CR
+                            127 	.globl _CF
+                            128 	.globl _TF2
+                            129 	.globl _EXF2
+                            130 	.globl _RCLK
+                            131 	.globl _TCLK
+                            132 	.globl _EXEN2
+                            133 	.globl _TR2
+                            134 	.globl _C_T2
+                            135 	.globl _CP_RL2
+                            136 	.globl _T2CON_7
+                            137 	.globl _T2CON_6
+                            138 	.globl _T2CON_5
+                            139 	.globl _T2CON_4
+                            140 	.globl _T2CON_3
+                            141 	.globl _T2CON_2
+                            142 	.globl _T2CON_1
+                            143 	.globl _T2CON_0
+                            144 	.globl _PT2
+                            145 	.globl _ET2
+                            146 	.globl _TMOD
+                            147 	.globl _TL1
+                            148 	.globl _TL0
+                            149 	.globl _TH1
+                            150 	.globl _TH0
+                            151 	.globl _TCON
+                            152 	.globl _SP
+                            153 	.globl _SCON
+                            154 	.globl _SBUF0
+                            155 	.globl _SBUF
+                            156 	.globl _PSW
+                            157 	.globl _PCON
+                            158 	.globl _P3
+                            159 	.globl _P2
+                            160 	.globl _P1
+                            161 	.globl _P0
+                            162 	.globl _IP
+                            163 	.globl _IE
+                            164 	.globl _DP0L
+                            165 	.globl _DPL
+                            166 	.globl _DP0H
+                            167 	.globl _DPH
+                            168 	.globl _B
+                            169 	.globl _ACC
+                            170 	.globl _EECON
+                            171 	.globl _KBF
+                            172 	.globl _KBE
+                            173 	.globl _KBLS
+                            174 	.globl _BRL
+                            175 	.globl _BDRCON
+                            176 	.globl _T2MOD
+                            177 	.globl _SPDAT
+                            178 	.globl _SPSTA
+                            179 	.globl _SPCON
+                            180 	.globl _SADEN
+                            181 	.globl _SADDR
+                            182 	.globl _WDTPRG
+                            183 	.globl _WDTRST
+                            184 	.globl _P5
+                            185 	.globl _P4
+                            186 	.globl _IPH1
+                            187 	.globl _IPL1
+                            188 	.globl _IPH0
+                            189 	.globl _IPL0
+                            190 	.globl _IEN1
+                            191 	.globl _IEN0
+                            192 	.globl _CMOD
+                            193 	.globl _CL
+                            194 	.globl _CH
+                            195 	.globl _CCON
+                            196 	.globl _CCAPM4
+                            197 	.globl _CCAPM3
+                            198 	.globl _CCAPM2
+                            199 	.globl _CCAPM1
+                            200 	.globl _CCAPM0
+                            201 	.globl _CCAP4L
+                            202 	.globl _CCAP3L
+                            203 	.globl _CCAP2L
+                            204 	.globl _CCAP1L
+                            205 	.globl _CCAP0L
+                            206 	.globl _CCAP4H
+                            207 	.globl _CCAP3H
+                            208 	.globl _CCAP2H
+                            209 	.globl _CCAP1H
+                            210 	.globl _CCAP0H
+                            211 	.globl _CKCKON1
+                            212 	.globl _CKCKON0
+                            213 	.globl _CKRL
+                            214 	.globl _AUXR1
+                            215 	.globl _AUXR
+                            216 	.globl _TH2
+                            217 	.globl _TL2
+                            218 	.globl _RCAP2H
+                            219 	.globl _RCAP2L
+                            220 	.globl _T2CON
+                            221 	.globl _count_value
+                            222 	.globl _write_menu
+                            223 	.globl _read_menu
+                            224 	.globl _hex_dump
+                            225 	.globl _eereset
+                            226 ;--------------------------------------------------------
+                            227 ; special function registers
+                            228 ;--------------------------------------------------------
+                            229 	.area RSEG    (DATA)
+                    00C8    230 _T2CON	=	0x00c8
+                    00CA    231 _RCAP2L	=	0x00ca
+                    00CB    232 _RCAP2H	=	0x00cb
+                    00CC    233 _TL2	=	0x00cc
+                    00CD    234 _TH2	=	0x00cd
+                    008E    235 _AUXR	=	0x008e
+                    00A2    236 _AUXR1	=	0x00a2
+                    0097    237 _CKRL	=	0x0097
+                    008F    238 _CKCKON0	=	0x008f
+                    008F    239 _CKCKON1	=	0x008f
+                    00FA    240 _CCAP0H	=	0x00fa
+                    00FB    241 _CCAP1H	=	0x00fb
+                    00FC    242 _CCAP2H	=	0x00fc
+                    00FD    243 _CCAP3H	=	0x00fd
+                    00FE    244 _CCAP4H	=	0x00fe
+                    00EA    245 _CCAP0L	=	0x00ea
+                    00EB    246 _CCAP1L	=	0x00eb
+                    00EC    247 _CCAP2L	=	0x00ec
+                    00ED    248 _CCAP3L	=	0x00ed
+                    00EE    249 _CCAP4L	=	0x00ee
+                    00DA    250 _CCAPM0	=	0x00da
+                    00DB    251 _CCAPM1	=	0x00db
+                    00DC    252 _CCAPM2	=	0x00dc
+                    00DD    253 _CCAPM3	=	0x00dd
+                    00DE    254 _CCAPM4	=	0x00de
+                    00D8    255 _CCON	=	0x00d8
+                    00F9    256 _CH	=	0x00f9
+                    00E9    257 _CL	=	0x00e9
+                    00D9    258 _CMOD	=	0x00d9
+                    00A8    259 _IEN0	=	0x00a8
+                    00B1    260 _IEN1	=	0x00b1
+                    00B8    261 _IPL0	=	0x00b8
+                    00B7    262 _IPH0	=	0x00b7
+                    00B2    263 _IPL1	=	0x00b2
+                    00B3    264 _IPH1	=	0x00b3
+                    00C0    265 _P4	=	0x00c0
+                    00D8    266 _P5	=	0x00d8
+                    00A6    267 _WDTRST	=	0x00a6
+                    00A7    268 _WDTPRG	=	0x00a7
+                    00A9    269 _SADDR	=	0x00a9
+                    00B9    270 _SADEN	=	0x00b9
+                    00C3    271 _SPCON	=	0x00c3
+                    00C4    272 _SPSTA	=	0x00c4
+                    00C5    273 _SPDAT	=	0x00c5
+                    00C9    274 _T2MOD	=	0x00c9
+                    009B    275 _BDRCON	=	0x009b
+                    009A    276 _BRL	=	0x009a
+                    009C    277 _KBLS	=	0x009c
+                    009D    278 _KBE	=	0x009d
+                    009E    279 _KBF	=	0x009e
+                    00D2    280 _EECON	=	0x00d2
+                    00E0    281 _ACC	=	0x00e0
+                    00F0    282 _B	=	0x00f0
+                    0083    283 _DPH	=	0x0083
+                    0083    284 _DP0H	=	0x0083
+                    0082    285 _DPL	=	0x0082
+                    0082    286 _DP0L	=	0x0082
+                    00A8    287 _IE	=	0x00a8
+                    00B8    288 _IP	=	0x00b8
+                    0080    289 _P0	=	0x0080
+                    0090    290 _P1	=	0x0090
+                    00A0    291 _P2	=	0x00a0
+                    00B0    292 _P3	=	0x00b0
+                    0087    293 _PCON	=	0x0087
+                    00D0    294 _PSW	=	0x00d0
+                    0099    295 _SBUF	=	0x0099
+                    0099    296 _SBUF0	=	0x0099
+                    0098    297 _SCON	=	0x0098
+                    0081    298 _SP	=	0x0081
+                    0088    299 _TCON	=	0x0088
+                    008C    300 _TH0	=	0x008c
+                    008D    301 _TH1	=	0x008d
+                    008A    302 _TL0	=	0x008a
+                    008B    303 _TL1	=	0x008b
+                    0089    304 _TMOD	=	0x0089
+                            305 ;--------------------------------------------------------
+                            306 ; special function bits
+                            307 ;--------------------------------------------------------
+                            308 	.area RSEG    (DATA)
+                    00AD    309 _ET2	=	0x00ad
+                    00BD    310 _PT2	=	0x00bd
+                    00C8    311 _T2CON_0	=	0x00c8
+                    00C9    312 _T2CON_1	=	0x00c9
+                    00CA    313 _T2CON_2	=	0x00ca
+                    00CB    314 _T2CON_3	=	0x00cb
+                    00CC    315 _T2CON_4	=	0x00cc
+                    00CD    316 _T2CON_5	=	0x00cd
+                    00CE    317 _T2CON_6	=	0x00ce
+                    00CF    318 _T2CON_7	=	0x00cf
+                    00C8    319 _CP_RL2	=	0x00c8
+                    00C9    320 _C_T2	=	0x00c9
+                    00CA    321 _TR2	=	0x00ca
+                    00CB    322 _EXEN2	=	0x00cb
+                    00CC    323 _TCLK	=	0x00cc
+                    00CD    324 _RCLK	=	0x00cd
+                    00CE    325 _EXF2	=	0x00ce
+                    00CF    326 _TF2	=	0x00cf
+                    00DF    327 _CF	=	0x00df
+                    00DE    328 _CR	=	0x00de
+                    00DC    329 _CCF4	=	0x00dc
+                    00DB    330 _CCF3	=	0x00db
+                    00DA    331 _CCF2	=	0x00da
+                    00D9    332 _CCF1	=	0x00d9
+                    00D8    333 _CCF0	=	0x00d8
+                    00AE    334 _EC	=	0x00ae
+                    00BE    335 _PPCL	=	0x00be
+                    00BD    336 _PT2L	=	0x00bd
+                    00BC    337 _PLS	=	0x00bc
+                    00BB    338 _PT1L	=	0x00bb
+                    00BA    339 _PX1L	=	0x00ba
+                    00B9    340 _PT0L	=	0x00b9
+                    00B8    341 _PX0L	=	0x00b8
+                    00C0    342 _P4_0	=	0x00c0
+                    00C1    343 _P4_1	=	0x00c1
+                    00C2    344 _P4_2	=	0x00c2
+                    00C3    345 _P4_3	=	0x00c3
+                    00C4    346 _P4_4	=	0x00c4
+                    00C5    347 _P4_5	=	0x00c5
+                    00C6    348 _P4_6	=	0x00c6
+                    00C7    349 _P4_7	=	0x00c7
+                    00D8    350 _P5_0	=	0x00d8
+                    00D9    351 _P5_1	=	0x00d9
+                    00DA    352 _P5_2	=	0x00da
+                    00DB    353 _P5_3	=	0x00db
+                    00DC    354 _P5_4	=	0x00dc
+                    00DD    355 _P5_5	=	0x00dd
+                    00DE    356 _P5_6	=	0x00de
+                    00DF    357 _P5_7	=	0x00df
+                    00F0    358 _BREG_F0	=	0x00f0
+                    00F1    359 _BREG_F1	=	0x00f1
+                    00F2    360 _BREG_F2	=	0x00f2
+                    00F3    361 _BREG_F3	=	0x00f3
+                    00F4    362 _BREG_F4	=	0x00f4
+                    00F5    363 _BREG_F5	=	0x00f5
+                    00F6    364 _BREG_F6	=	0x00f6
+                    00F7    365 _BREG_F7	=	0x00f7
+                    00A8    366 _EX0	=	0x00a8
+                    00A9    367 _ET0	=	0x00a9
+                    00AA    368 _EX1	=	0x00aa
+                    00AB    369 _ET1	=	0x00ab
+                    00AC    370 _ES	=	0x00ac
+                    00AF    371 _EA	=	0x00af
+                    00B8    372 _PX0	=	0x00b8
+                    00B9    373 _PT0	=	0x00b9
+                    00BA    374 _PX1	=	0x00ba
+                    00BB    375 _PT1	=	0x00bb
+                    00BC    376 _PS	=	0x00bc
+                    0080    377 _P0_0	=	0x0080
+                    0081    378 _P0_1	=	0x0081
+                    0082    379 _P0_2	=	0x0082
+                    0083    380 _P0_3	=	0x0083
+                    0084    381 _P0_4	=	0x0084
+                    0085    382 _P0_5	=	0x0085
+                    0086    383 _P0_6	=	0x0086
+                    0087    384 _P0_7	=	0x0087
+                    0090    385 _P1_0	=	0x0090
+                    0091    386 _P1_1	=	0x0091
+                    0092    387 _P1_2	=	0x0092
+                    0093    388 _P1_3	=	0x0093
+                    0094    389 _P1_4	=	0x0094
+                    0095    390 _P1_5	=	0x0095
+                    0096    391 _P1_6	=	0x0096
+                    0097    392 _P1_7	=	0x0097
+                    00A0    393 _P2_0	=	0x00a0
+                    00A1    394 _P2_1	=	0x00a1
+                    00A2    395 _P2_2	=	0x00a2
+                    00A3    396 _P2_3	=	0x00a3
+                    00A4    397 _P2_4	=	0x00a4
+                    00A5    398 _P2_5	=	0x00a5
+                    00A6    399 _P2_6	=	0x00a6
+                    00A7    400 _P2_7	=	0x00a7
+                    00B0    401 _P3_0	=	0x00b0
+                    00B1    402 _P3_1	=	0x00b1
+                    00B2    403 _P3_2	=	0x00b2
+                    00B3    404 _P3_3	=	0x00b3
+                    00B4    405 _P3_4	=	0x00b4
+                    00B5    406 _P3_5	=	0x00b5
+                    00B6    407 _P3_6	=	0x00b6
+                    00B7    408 _P3_7	=	0x00b7
+                    00B0    409 _RXD	=	0x00b0
+                    00B0    410 _RXD0	=	0x00b0
+                    00B1    411 _TXD	=	0x00b1
+                    00B1    412 _TXD0	=	0x00b1
+                    00B2    413 _INT0	=	0x00b2
+                    00B3    414 _INT1	=	0x00b3
+                    00B4    415 _T0	=	0x00b4
+                    00B5    416 _T1	=	0x00b5
+                    00B6    417 _WR	=	0x00b6
+                    00B7    418 _RD	=	0x00b7
+                    00D0    419 _P	=	0x00d0
+                    00D1    420 _F1	=	0x00d1
+                    00D2    421 _OV	=	0x00d2
+                    00D3    422 _RS0	=	0x00d3
+                    00D4    423 _RS1	=	0x00d4
+                    00D5    424 _F0	=	0x00d5
+                    00D6    425 _AC	=	0x00d6
+                    00D7    426 _CY	=	0x00d7
+                    0098    427 _RI	=	0x0098
+                    0099    428 _TI	=	0x0099
+                    009A    429 _RB8	=	0x009a
+                    009B    430 _TB8	=	0x009b
+                    009C    431 _REN	=	0x009c
+                    009D    432 _SM2	=	0x009d
+                    009E    433 _SM1	=	0x009e
+                    009F    434 _SM0	=	0x009f
+                    0088    435 _IT0	=	0x0088
+                    0089    436 _IE0	=	0x0089
+                    008A    437 _IT1	=	0x008a
+                    008B    438 _IE1	=	0x008b
+                    008C    439 _TR0	=	0x008c
+                    008D    440 _TF0	=	0x008d
+                    008E    441 _TR1	=	0x008e
+                    008F    442 _TF1	=	0x008f
+                            443 ;--------------------------------------------------------
+                            444 ; overlayable register banks
+                            445 ;--------------------------------------------------------
+                            446 	.area REG_BANK_0	(REL,OVR,DATA)
+   0000                     447 	.ds 8
+                            448 ;--------------------------------------------------------
+                            449 ; internal ram data
+                            450 ;--------------------------------------------------------
+                            451 	.area DSEG    (DATA)
+   0000                     452 _hex_dump_sloc0_1_0:
+   0000                     453 	.ds 3
+   0003                     454 _hex_dump_sloc1_1_0:
+   0003                     455 	.ds 2
+   0005                     456 _hex_dump_sloc3_1_0:
+   0005                     457 	.ds 2
+                            458 ;--------------------------------------------------------
+                            459 ; overlayable items in internal ram 
+                            460 ;--------------------------------------------------------
+                            461 	.area OSEG    (OVR,DATA)
+                            462 ;--------------------------------------------------------
+                            463 ; indirectly addressable internal ram data
+                            464 ;--------------------------------------------------------
+                            465 	.area ISEG    (DATA)
+                            466 ;--------------------------------------------------------
+                            467 ; bit data
+                            468 ;--------------------------------------------------------
+                            469 	.area BSEG    (BIT)
+                            470 ;--------------------------------------------------------
+                            471 ; paged external ram data
+                            472 ;--------------------------------------------------------
+                            473 	.area PSEG    (PAG,XDATA)
+                            474 ;--------------------------------------------------------
+                            475 ; external ram data
+                            476 ;--------------------------------------------------------
+                            477 	.area XSEG    (XDATA)
+   0000                     478 _hex_dump_temp2_1_1:
+   0000                     479 	.ds 2
+                            480 ;--------------------------------------------------------
+                            481 ; external initialized ram data
+                            482 ;--------------------------------------------------------
+                            483 	.area XISEG   (XDATA)
+   0000                     484 _count_value::
+   0000                     485 	.ds 1
+                            486 	.area HOME    (CODE)
+                            487 	.area GSINIT0 (CODE)
+                            488 	.area GSINIT1 (CODE)
+                            489 	.area GSINIT2 (CODE)
+                            490 	.area GSINIT3 (CODE)
+                            491 	.area GSINIT4 (CODE)
+                            492 	.area GSINIT5 (CODE)
+                            493 	.area GSINIT  (CODE)
+                            494 	.area GSFINAL (CODE)
+                            495 	.area CSEG    (CODE)
+                            496 ;--------------------------------------------------------
+                            497 ; global & static initialisations
+                            498 ;--------------------------------------------------------
+                            499 	.area HOME    (CODE)
+                            500 	.area GSINIT  (CODE)
+                            501 	.area GSFINAL (CODE)
+                            502 	.area GSINIT  (CODE)
+                            503 ;--------------------------------------------------------
+                            504 ; Home
+                            505 ;--------------------------------------------------------
+                            506 	.area HOME    (CODE)
+                            507 	.area CSEG    (CODE)
+                            508 ;--------------------------------------------------------
+                            509 ; code
+                            510 ;--------------------------------------------------------
+                            511 	.area CSEG    (CODE)
+                            512 ;------------------------------------------------------------
+                            513 ;Allocation info for local variables in function 'write_menu'
+                            514 ;------------------------------------------------------------
+                            515 ;user_address              Allocated with name '_write_menu_user_address_1_1'
+                            516 ;user_data                 Allocated with name '_write_menu_user_data_1_1'
+                            517 ;user_addr                 Allocated with name '_write_menu_user_addr_1_1'
+                            518 ;user_d                    Allocated with name '_write_menu_user_d_1_1'
+                            519 ;------------------------------------------------------------
+                            520 ;	EEPROM_UI.c:15: unsigned char write_menu(void){
+                            521 ;	-----------------------------------------
+                            522 ;	 function write_menu
+                            523 ;	-----------------------------------------
+   0000                     524 _write_menu:
+                    0002    525 	ar2 = 0x02
+                    0003    526 	ar3 = 0x03
+                    0004    527 	ar4 = 0x04
+                    0005    528 	ar5 = 0x05
+                    0006    529 	ar6 = 0x06
+                    0007    530 	ar7 = 0x07
+                    0000    531 	ar0 = 0x00
+                    0001    532 	ar1 = 0x01
+                            533 ;	EEPROM_UI.c:19: do{
+   0000                     534 00107$:
+                            535 ;	EEPROM_UI.c:20: printf_tiny("\rWrite Mode Entered!\n\rEnter valid address between 000 (Hex) to 7FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
+                            536 ;	genIpush
+   0000 74r00               537 	mov	a,#__str_0
+   0002 C0 E0               538 	push	acc
+   0004 74s00               539 	mov	a,#(__str_0 >> 8)
+   0006 C0 E0               540 	push	acc
+                            541 ;	genCall
+   0008 12s00r00            542 	lcall	_printf_tiny
+   000B 15 81               543 	dec	sp
+   000D 15 81               544 	dec	sp
+                            545 ;	EEPROM_UI.c:21: user_address = rx_get_string();
+                            546 ;	genCall
+   000F 12s00r00            547 	lcall	_rx_get_string
+   0012 AA 82               548 	mov	r2,dpl
+   0014 AB 83               549 	mov	r3,dph
+   0016 AC F0               550 	mov	r4,b
+                            551 ;	EEPROM_UI.c:22: if(rx_array[0] == 0x08){
+                            552 ;	genPointerGet
+                            553 ;	genFarPointerGet
+   0018 90s00r00            554 	mov	dptr,#_rx_array
+   001B E0                  555 	movx	a,@dptr
+   001C FD                  556 	mov	r5,a
+                            557 ;	genCmpEq
+                            558 ;	gencjneshort
+                            559 ;	Peephole 112.b	changed ljmp to sjmp
+                            560 ;	Peephole 198.b	optimized misc jump sequence
+   001D BD 08 04            561 	cjne	r5,#0x08,00102$
+                            562 ;	Peephole 200.b	removed redundant sjmp
+                            563 ;	Peephole 300	removed redundant label 00130$
+                            564 ;	Peephole 300	removed redundant label 00131$
+                            565 ;	EEPROM_UI.c:23: return 0;
+                            566 ;	genRet
+   0020 75 82 00            567 	mov	dpl,#0x00
+                            568 ;	Peephole 251.a	replaced ljmp to ret with ret
+   0023 22                  569 	ret
+   0024                     570 00102$:
+                            571 ;	EEPROM_UI.c:25: printf_tiny("\rAddress received = 0x%s\n", rx_array);
+                            572 ;	genIpush
+   0024 C0 02               573 	push	ar2
+   0026 C0 03               574 	push	ar3
+   0028 C0 04               575 	push	ar4
+   002A 74r00               576 	mov	a,#_rx_array
+   002C C0 E0               577 	push	acc
+   002E 74s00               578 	mov	a,#(_rx_array >> 8)
+   0030 C0 E0               579 	push	acc
+                            580 ;	Peephole 181	changed mov to clr
+   0032 E4                  581 	clr	a
+   0033 C0 E0               582 	push	acc
+                            583 ;	genIpush
+   0035 74r79               584 	mov	a,#__str_1
+   0037 C0 E0               585 	push	acc
+   0039 74s00               586 	mov	a,#(__str_1 >> 8)
+   003B C0 E0               587 	push	acc
+                            588 ;	genCall
+   003D 12s00r00            589 	lcall	_printf_tiny
+   0040 E5 81               590 	mov	a,sp
+   0042 24 FB               591 	add	a,#0xfb
+   0044 F5 81               592 	mov	sp,a
+   0046 D0 04               593 	pop	ar4
+   0048 D0 03               594 	pop	ar3
+   004A D0 02               595 	pop	ar2
+                            596 ;	EEPROM_UI.c:26: user_addr = stoh(user_address);
+                            597 ;	genCall
+   004C 8A 82               598 	mov	dpl,r2
+   004E 8B 83               599 	mov	dph,r3
+   0050 8C F0               600 	mov	b,r4
+   0052 12s00r00            601 	lcall	_stoh
+   0055 AA 82               602 	mov	r2,dpl
+   0057 AB 83               603 	mov	r3,dph
+                            604 ;	EEPROM_UI.c:27: if(user_addr == 0xFFFF || rx_array[0]==13){
+                            605 ;	genCmpEq
+                            606 ;	gencjne
+                            607 ;	gencjneshort
+                            608 ;	Peephole 241.c	optimized compare
+   0059 E4                  609 	clr	a
+   005A BA FF 04            610 	cjne	r2,#0xFF,00132$
+   005D BB FF 01            611 	cjne	r3,#0xFF,00132$
+   0060 04                  612 	inc	a
+   0061                     613 00132$:
+                            614 ;	Peephole 300	removed redundant label 00133$
+                            615 ;	genIfx
+   0061 FC                  616 	mov	r4,a
+                            617 ;	Peephole 105	removed redundant mov
+                            618 ;	genIfxJump
+                            619 ;	Peephole 108.b	removed ljmp by inverse jump logic
+   0062 70 08               620 	jnz	00103$
+                            621 ;	Peephole 300	removed redundant label 00134$
+                            622 ;	genPointerGet
+                            623 ;	genFarPointerGet
+   0064 90s00r00            624 	mov	dptr,#_rx_array
+   0067 E0                  625 	movx	a,@dptr
+   0068 FD                  626 	mov	r5,a
+                            627 ;	genCmpEq
+                            628 ;	gencjneshort
+                            629 ;	Peephole 112.b	changed ljmp to sjmp
+                            630 ;	Peephole 198.b	optimized misc jump sequence
+   0069 BD 0D 1B            631 	cjne	r5,#0x0D,00108$
+                            632 ;	Peephole 200.b	removed redundant sjmp
+                            633 ;	Peephole 300	removed redundant label 00135$
+                            634 ;	Peephole 300	removed redundant label 00136$
+   006C                     635 00103$:
+                            636 ;	EEPROM_UI.c:28: printf_tiny("\rEnter valid address!\n\r");
+                            637 ;	genIpush
+   006C C0 02               638 	push	ar2
+   006E C0 03               639 	push	ar3
+   0070 C0 04               640 	push	ar4
+   0072 74r93               641 	mov	a,#__str_2
+   0074 C0 E0               642 	push	acc
+   0076 74s00               643 	mov	a,#(__str_2 >> 8)
+   0078 C0 E0               644 	push	acc
+                            645 ;	genCall
+   007A 12s00r00            646 	lcall	_printf_tiny
+   007D 15 81               647 	dec	sp
+   007F 15 81               648 	dec	sp
+   0081 D0 04               649 	pop	ar4
+   0083 D0 03               650 	pop	ar3
+   0085 D0 02               651 	pop	ar2
+   0087                     652 00108$:
+                            653 ;	EEPROM_UI.c:30: }while(user_addr == 0xFFFF || rx_array[0]==13);
+                            654 ;	genIfx
+   0087 EC                  655 	mov	a,r4
+                            656 ;	genIfxJump
+   0088 60 03               657 	jz	00137$
+   008A 02s00r00            658 	ljmp	00107$
+   008D                     659 00137$:
+                            660 ;	genPointerGet
+                            661 ;	genFarPointerGet
+   008D 90s00r00            662 	mov	dptr,#_rx_array
+   0090 E0                  663 	movx	a,@dptr
+   0091 FC                  664 	mov	r4,a
+                            665 ;	genCmpEq
+                            666 ;	gencjneshort
+   0092 BC 0D 03            667 	cjne	r4,#0x0D,00138$
+   0095 02s00r00            668 	ljmp	00107$
+   0098                     669 00138$:
+                            670 ;	EEPROM_UI.c:31: do{
+   0098                     671 00116$:
+                            672 ;	EEPROM_UI.c:32: printf_tiny("\rEnter valid data between 00 (Hex) to FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
+                            673 ;	genIpush
+   0098 C0 02               674 	push	ar2
+   009A C0 03               675 	push	ar3
+   009C 74rAB               676 	mov	a,#__str_3
+   009E C0 E0               677 	push	acc
+   00A0 74s00               678 	mov	a,#(__str_3 >> 8)
+   00A2 C0 E0               679 	push	acc
+                            680 ;	genCall
+   00A4 12s00r00            681 	lcall	_printf_tiny
+   00A7 15 81               682 	dec	sp
+   00A9 15 81               683 	dec	sp
+   00AB D0 03               684 	pop	ar3
+   00AD D0 02               685 	pop	ar2
+                            686 ;	EEPROM_UI.c:33: user_data = rx_get_string();
+                            687 ;	genCall
+   00AF C0 02               688 	push	ar2
+   00B1 C0 03               689 	push	ar3
+   00B3 12s00r00            690 	lcall	_rx_get_string
+   00B6 AC 82               691 	mov	r4,dpl
+   00B8 AD 83               692 	mov	r5,dph
+   00BA AE F0               693 	mov	r6,b
+   00BC D0 03               694 	pop	ar3
+   00BE D0 02               695 	pop	ar2
+                            696 ;	EEPROM_UI.c:34: if(rx_array[0] == 0x08){
+                            697 ;	genPointerGet
+                            698 ;	genFarPointerGet
+   00C0 90s00r00            699 	mov	dptr,#_rx_array
+   00C3 E0                  700 	movx	a,@dptr
+   00C4 FF                  701 	mov	r7,a
+                            702 ;	genCmpEq
+                            703 ;	gencjneshort
+                            704 ;	Peephole 112.b	changed ljmp to sjmp
+                            705 ;	Peephole 198.b	optimized misc jump sequence
+   00C5 BF 08 04            706 	cjne	r7,#0x08,00111$
+                            707 ;	Peephole 200.b	removed redundant sjmp
+                            708 ;	Peephole 300	removed redundant label 00139$
+                            709 ;	Peephole 300	removed redundant label 00140$
+                            710 ;	EEPROM_UI.c:35: return 0;
+                            711 ;	genRet
+   00C8 75 82 00            712 	mov	dpl,#0x00
+                            713 ;	Peephole 251.a	replaced ljmp to ret with ret
+   00CB 22                  714 	ret
+   00CC                     715 00111$:
+                            716 ;	EEPROM_UI.c:37: printf_tiny("\rData received = 0x%s\n", rx_array);
+                            717 ;	genIpush
+   00CC C0 02               718 	push	ar2
+   00CE C0 03               719 	push	ar3
+   00D0 C0 04               720 	push	ar4
+   00D2 C0 05               721 	push	ar5
+   00D4 C0 06               722 	push	ar6
+   00D6 74r00               723 	mov	a,#_rx_array
+   00D8 C0 E0               724 	push	acc
+   00DA 74s00               725 	mov	a,#(_rx_array >> 8)
+   00DC C0 E0               726 	push	acc
+                            727 ;	Peephole 181	changed mov to clr
+   00DE E4                  728 	clr	a
+   00DF C0 E0               729 	push	acc
+                            730 ;	genIpush
+   00E1 74r0A               731 	mov	a,#__str_4
+   00E3 C0 E0               732 	push	acc
+   00E5 74s01               733 	mov	a,#(__str_4 >> 8)
+   00E7 C0 E0               734 	push	acc
+                            735 ;	genCall
+   00E9 12s00r00            736 	lcall	_printf_tiny
+   00EC E5 81               737 	mov	a,sp
+   00EE 24 FB               738 	add	a,#0xfb
+   00F0 F5 81               739 	mov	sp,a
+   00F2 D0 06               740 	pop	ar6
+   00F4 D0 05               741 	pop	ar5
+   00F6 D0 04               742 	pop	ar4
+   00F8 D0 03               743 	pop	ar3
+   00FA D0 02               744 	pop	ar2
+                            745 ;	EEPROM_UI.c:38: user_d = stoh(user_data);
+                            746 ;	genCall
+   00FC 8C 82               747 	mov	dpl,r4
+   00FE 8D 83               748 	mov	dph,r5
+   0100 8E F0               749 	mov	b,r6
+   0102 C0 02               750 	push	ar2
+   0104 C0 03               751 	push	ar3
+   0106 12s00r00            752 	lcall	_stoh
+   0109 AC 82               753 	mov	r4,dpl
+   010B AD 83               754 	mov	r5,dph
+   010D D0 03               755 	pop	ar3
+   010F D0 02               756 	pop	ar2
+                            757 ;	EEPROM_UI.c:39: if(user_d > 0xFF || rx_array[0]==13){
+                            758 ;	genAssign
+   0111 8C 06               759 	mov	ar6,r4
+   0113 8D 07               760 	mov	ar7,r5
+                            761 ;	genCmpGt
+                            762 ;	genCmp
+   0115 C3                  763 	clr	c
+   0116 74 FF               764 	mov	a,#0xFF
+   0118 9E                  765 	subb	a,r6
+                            766 ;	Peephole 181	changed mov to clr
+   0119 E4                  767 	clr	a
+   011A 9F                  768 	subb	a,r7
+                            769 ;	genIfxJump
+                            770 ;	Peephole 112.b	changed ljmp to sjmp
+                            771 ;	Peephole 160.a	removed sjmp by inverse jump logic
+   011B 40 08               772 	jc	00112$
+                            773 ;	Peephole 300	removed redundant label 00141$
+                            774 ;	genPointerGet
+                            775 ;	genFarPointerGet
+   011D 90s00r00            776 	mov	dptr,#_rx_array
+   0120 E0                  777 	movx	a,@dptr
+   0121 FE                  778 	mov	r6,a
+                            779 ;	genCmpEq
+                            780 ;	gencjneshort
+                            781 ;	Peephole 112.b	changed ljmp to sjmp
+                            782 ;	Peephole 198.b	optimized misc jump sequence
+   0122 BE 0D 1F            783 	cjne	r6,#0x0D,00117$
+                            784 ;	Peephole 200.b	removed redundant sjmp
+                            785 ;	Peephole 300	removed redundant label 00142$
+                            786 ;	Peephole 300	removed redundant label 00143$
+   0125                     787 00112$:
+                            788 ;	EEPROM_UI.c:40: printf_tiny("\rEnter valid data!\n\r");
+                            789 ;	genIpush
+   0125 C0 02               790 	push	ar2
+   0127 C0 03               791 	push	ar3
+   0129 C0 04               792 	push	ar4
+   012B C0 05               793 	push	ar5
+   012D 74r21               794 	mov	a,#__str_5
+   012F C0 E0               795 	push	acc
+   0131 74s01               796 	mov	a,#(__str_5 >> 8)
+   0133 C0 E0               797 	push	acc
+                            798 ;	genCall
+   0135 12s00r00            799 	lcall	_printf_tiny
+   0138 15 81               800 	dec	sp
+   013A 15 81               801 	dec	sp
+   013C D0 05               802 	pop	ar5
+   013E D0 04               803 	pop	ar4
+   0140 D0 03               804 	pop	ar3
+   0142 D0 02               805 	pop	ar2
+   0144                     806 00117$:
+                            807 ;	EEPROM_UI.c:42: }while(user_d > 0xFF || rx_array[0]==13);
+                            808 ;	genAssign
+   0144 8C 06               809 	mov	ar6,r4
+   0146 8D 07               810 	mov	ar7,r5
+                            811 ;	genCmpGt
+                            812 ;	genCmp
+   0148 C3                  813 	clr	c
+   0149 74 FF               814 	mov	a,#0xFF
+   014B 9E                  815 	subb	a,r6
+                            816 ;	Peephole 181	changed mov to clr
+   014C E4                  817 	clr	a
+   014D 9F                  818 	subb	a,r7
+                            819 ;	genIfxJump
+   014E 50 03               820 	jnc	00144$
+   0150 02s00r98            821 	ljmp	00116$
+   0153                     822 00144$:
+                            823 ;	genPointerGet
+                            824 ;	genFarPointerGet
+   0153 90s00r00            825 	mov	dptr,#_rx_array
+   0156 E0                  826 	movx	a,@dptr
+   0157 FE                  827 	mov	r6,a
+                            828 ;	genCmpEq
+                            829 ;	gencjneshort
+   0158 BE 0D 03            830 	cjne	r6,#0x0D,00145$
+   015B 02s00r98            831 	ljmp	00116$
+   015E                     832 00145$:
+                            833 ;	EEPROM_UI.c:43: I2C_Write_EEPROM(user_addr, (unsigned char)user_d);
+                            834 ;	genAssign
+                            835 ;	genCast
+   015E 90s00r00            836 	mov	dptr,#_I2C_Write_EEPROM_PARM_2
+   0161 EC                  837 	mov	a,r4
+   0162 F0                  838 	movx	@dptr,a
+                            839 ;	genCall
+   0163 8A 82               840 	mov	dpl,r2
+   0165 8B 83               841 	mov	dph,r3
+   0167 C0 02               842 	push	ar2
+   0169 C0 03               843 	push	ar3
+   016B 12s00r00            844 	lcall	_I2C_Write_EEPROM
+   016E D0 03               845 	pop	ar3
+   0170 D0 02               846 	pop	ar2
+                            847 ;	EEPROM_UI.c:44: user_d = (int)I2C_Read_EEPROM(user_addr);
+                            848 ;	genCall
+   0172 8A 82               849 	mov	dpl,r2
+   0174 8B 83               850 	mov	dph,r3
+   0176 C0 02               851 	push	ar2
+   0178 C0 03               852 	push	ar3
+   017A 12s00r00            853 	lcall	_I2C_Read_EEPROM
+   017D AC 82               854 	mov	r4,dpl
+   017F D0 03               855 	pop	ar3
+   0181 D0 02               856 	pop	ar2
+                            857 ;	genCast
+   0183 7D 00               858 	mov	r5,#0x00
+                            859 ;	EEPROM_UI.c:45: printf_tiny("\rData written = 0x%x at location 0x%x\n", user_d, user_addr);
+                            860 ;	genIpush
+   0185 C0 02               861 	push	ar2
+   0187 C0 03               862 	push	ar3
+                            863 ;	genIpush
+   0189 C0 04               864 	push	ar4
+   018B C0 05               865 	push	ar5
+                            866 ;	genIpush
+   018D 74r36               867 	mov	a,#__str_6
+   018F C0 E0               868 	push	acc
+   0191 74s01               869 	mov	a,#(__str_6 >> 8)
+   0193 C0 E0               870 	push	acc
+                            871 ;	genCall
+   0195 12s00r00            872 	lcall	_printf_tiny
+   0198 E5 81               873 	mov	a,sp
+   019A 24 FA               874 	add	a,#0xfa
+   019C F5 81               875 	mov	sp,a
+                            876 ;	EEPROM_UI.c:46: return 0;
+                            877 ;	genRet
+   019E 75 82 00            878 	mov	dpl,#0x00
+                            879 ;	Peephole 300	removed redundant label 00119$
+   01A1 22                  880 	ret
+                            881 ;------------------------------------------------------------
+                            882 ;Allocation info for local variables in function 'read_menu'
+                            883 ;------------------------------------------------------------
+                            884 ;user_address              Allocated with name '_read_menu_user_address_1_1'
+                            885 ;user_data                 Allocated with name '_read_menu_user_data_1_1'
+                            886 ;user_addr                 Allocated with name '_read_menu_user_addr_1_1'
+                            887 ;user_d                    Allocated with name '_read_menu_user_d_1_1'
+                            888 ;------------------------------------------------------------
+                            889 ;	EEPROM_UI.c:51: unsigned char read_menu(){
+                            890 ;	-----------------------------------------
+                            891 ;	 function read_menu
+                            892 ;	-----------------------------------------
+   01A2                     893 _read_menu:
+                            894 ;	EEPROM_UI.c:55: do{
+   01A2                     895 00107$:
+                            896 ;	EEPROM_UI.c:56: printf_tiny("\rRead Mode Entered!\n\rEnter valid address between 000 (Hex) to 7FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
+                            897 ;	genIpush
+   01A2 74r5D               898 	mov	a,#__str_7
+   01A4 C0 E0               899 	push	acc
+   01A6 74s01               900 	mov	a,#(__str_7 >> 8)
+   01A8 C0 E0               901 	push	acc
+                            902 ;	genCall
+   01AA 12s00r00            903 	lcall	_printf_tiny
+   01AD 15 81               904 	dec	sp
+   01AF 15 81               905 	dec	sp
+                            906 ;	EEPROM_UI.c:57: user_address = rx_get_string();
+                            907 ;	genCall
+   01B1 12s00r00            908 	lcall	_rx_get_string
+   01B4 AA 82               909 	mov	r2,dpl
+   01B6 AB 83               910 	mov	r3,dph
+   01B8 AC F0               911 	mov	r4,b
+                            912 ;	EEPROM_UI.c:58: if(rx_array[0] == 0x08){
+                            913 ;	genPointerGet
+                            914 ;	genFarPointerGet
+   01BA 90s00r00            915 	mov	dptr,#_rx_array
+   01BD E0                  916 	movx	a,@dptr
+   01BE FD                  917 	mov	r5,a
+                            918 ;	genCmpEq
+                            919 ;	gencjneshort
+                            920 ;	Peephole 112.b	changed ljmp to sjmp
+                            921 ;	Peephole 198.b	optimized misc jump sequence
+   01BF BD 08 04            922 	cjne	r5,#0x08,00102$
+                            923 ;	Peephole 200.b	removed redundant sjmp
+                            924 ;	Peephole 300	removed redundant label 00116$
+                            925 ;	Peephole 300	removed redundant label 00117$
+                            926 ;	EEPROM_UI.c:59: return 0;
+                            927 ;	genRet
+   01C2 75 82 00            928 	mov	dpl,#0x00
+                            929 ;	Peephole 251.a	replaced ljmp to ret with ret
+   01C5 22                  930 	ret
+   01C6                     931 00102$:
+                            932 ;	EEPROM_UI.c:61: printf_tiny("\rAddress received = 0x%s\n", rx_array);
+                            933 ;	genIpush
+   01C6 C0 02               934 	push	ar2
+   01C8 C0 03               935 	push	ar3
+   01CA C0 04               936 	push	ar4
+   01CC 74r00               937 	mov	a,#_rx_array
+   01CE C0 E0               938 	push	acc
+   01D0 74s00               939 	mov	a,#(_rx_array >> 8)
+   01D2 C0 E0               940 	push	acc
+                            941 ;	Peephole 181	changed mov to clr
+   01D4 E4                  942 	clr	a
+   01D5 C0 E0               943 	push	acc
+                            944 ;	genIpush
+   01D7 74r79               945 	mov	a,#__str_1
+   01D9 C0 E0               946 	push	acc
+   01DB 74s00               947 	mov	a,#(__str_1 >> 8)
+   01DD C0 E0               948 	push	acc
+                            949 ;	genCall
+   01DF 12s00r00            950 	lcall	_printf_tiny
+   01E2 E5 81               951 	mov	a,sp
+   01E4 24 FB               952 	add	a,#0xfb
+   01E6 F5 81               953 	mov	sp,a
+   01E8 D0 04               954 	pop	ar4
+   01EA D0 03               955 	pop	ar3
+   01EC D0 02               956 	pop	ar2
+                            957 ;	EEPROM_UI.c:62: user_addr = stoh(user_address);
+                            958 ;	genCall
+   01EE 8A 82               959 	mov	dpl,r2
+   01F0 8B 83               960 	mov	dph,r3
+   01F2 8C F0               961 	mov	b,r4
+   01F4 12s00r00            962 	lcall	_stoh
+   01F7 AA 82               963 	mov	r2,dpl
+   01F9 AB 83               964 	mov	r3,dph
+                            965 ;	EEPROM_UI.c:63: if(user_addr > 0xFFFF || rx_array[0]==13){
+                            966 ;	genPointerGet
+                            967 ;	genFarPointerGet
+   01FB 90s00r00            968 	mov	dptr,#_rx_array
+   01FE E0                  969 	movx	a,@dptr
+   01FF FC                  970 	mov	r4,a
+                            971 ;	genCmpEq
+                            972 ;	gencjneshort
+                            973 ;	Peephole 112.b	changed ljmp to sjmp
+                            974 ;	Peephole 198.b	optimized misc jump sequence
+   0200 BC 0D 17            975 	cjne	r4,#0x0D,00108$
+                            976 ;	Peephole 200.b	removed redundant sjmp
+                            977 ;	Peephole 300	removed redundant label 00118$
+                            978 ;	Peephole 300	removed redundant label 00119$
+                            979 ;	EEPROM_UI.c:64: printf_tiny("\rEnter valid address!\n\r");
+                            980 ;	genIpush
+   0203 C0 02               981 	push	ar2
+   0205 C0 03               982 	push	ar3
+   0207 74r93               983 	mov	a,#__str_2
+   0209 C0 E0               984 	push	acc
+   020B 74s00               985 	mov	a,#(__str_2 >> 8)
+   020D C0 E0               986 	push	acc
+                            987 ;	genCall
+   020F 12s00r00            988 	lcall	_printf_tiny
+   0212 15 81               989 	dec	sp
+   0214 15 81               990 	dec	sp
+   0216 D0 03               991 	pop	ar3
+   0218 D0 02               992 	pop	ar2
+   021A                     993 00108$:
+                            994 ;	EEPROM_UI.c:66: }while(user_addr > 0xFFFF || rx_array[0]==13);
+                            995 ;	genPointerGet
+                            996 ;	genFarPointerGet
+   021A 90s00r00            997 	mov	dptr,#_rx_array
+   021D E0                  998 	movx	a,@dptr
+   021E FC                  999 	mov	r4,a
+                           1000 ;	genCmpEq
+                           1001 ;	gencjneshort
+   021F BC 0D 03           1002 	cjne	r4,#0x0D,00120$
+   0222 02s01rA2           1003 	ljmp	00107$
+   0225                    1004 00120$:
+                           1005 ;	EEPROM_UI.c:67: user_d = I2C_Read_EEPROM(user_addr);
+                           1006 ;	genCall
+   0225 8A 82              1007 	mov	dpl,r2
+   0227 8B 83              1008 	mov	dph,r3
+   0229 C0 02              1009 	push	ar2
+   022B C0 03              1010 	push	ar3
+   022D 12s00r00           1011 	lcall	_I2C_Read_EEPROM
+   0230 AC 82              1012 	mov	r4,dpl
+   0232 D0 03              1013 	pop	ar3
+   0234 D0 02              1014 	pop	ar2
+                           1015 ;	genCast
+   0236 7D 00              1016 	mov	r5,#0x00
+                           1017 ;	EEPROM_UI.c:68: printf_tiny("\r(Values in HEX format)\n\n");
+                           1018 ;	genIpush
+   0238 C0 02              1019 	push	ar2
+   023A C0 03              1020 	push	ar3
+   023C C0 04              1021 	push	ar4
+   023E C0 05              1022 	push	ar5
+   0240 74rD5              1023 	mov	a,#__str_8
+   0242 C0 E0              1024 	push	acc
+   0244 74s01              1025 	mov	a,#(__str_8 >> 8)
+   0246 C0 E0              1026 	push	acc
+                           1027 ;	genCall
+   0248 12s00r00           1028 	lcall	_printf_tiny
+   024B 15 81              1029 	dec	sp
+   024D 15 81              1030 	dec	sp
+   024F D0 05              1031 	pop	ar5
+   0251 D0 04              1032 	pop	ar4
+   0253 D0 03              1033 	pop	ar3
+   0255 D0 02              1034 	pop	ar2
+                           1035 ;	EEPROM_UI.c:69: printf_tiny("\r");
+                           1036 ;	genIpush
+   0257 C0 02              1037 	push	ar2
+   0259 C0 03              1038 	push	ar3
+   025B C0 04              1039 	push	ar4
+   025D C0 05              1040 	push	ar5
+   025F 74rEF              1041 	mov	a,#__str_9
+   0261 C0 E0              1042 	push	acc
+   0263 74s01              1043 	mov	a,#(__str_9 >> 8)
+   0265 C0 E0              1044 	push	acc
+                           1045 ;	genCall
+   0267 12s00r00           1046 	lcall	_printf_tiny
+   026A 15 81              1047 	dec	sp
+   026C 15 81              1048 	dec	sp
+   026E D0 05              1049 	pop	ar5
+   0270 D0 04              1050 	pop	ar4
+   0272 D0 03              1051 	pop	ar3
+   0274 D0 02              1052 	pop	ar2
+                           1053 ;	EEPROM_UI.c:70: my_print(user_addr, 3);
+                           1054 ;	genAssign
+   0276 90s00r00           1055 	mov	dptr,#_my_print_PARM_2
+   0279 74 03              1056 	mov	a,#0x03
+   027B F0                 1057 	movx	@dptr,a
+                           1058 ;	genCall
+   027C 8A 82              1059 	mov	dpl,r2
+   027E 8B 83              1060 	mov	dph,r3
+   0280 C0 04              1061 	push	ar4
+   0282 C0 05              1062 	push	ar5
+   0284 12s00r00           1063 	lcall	_my_print
+   0287 D0 05              1064 	pop	ar5
+   0289 D0 04              1065 	pop	ar4
+                           1066 ;	EEPROM_UI.c:71: printf_tiny(":");
+                           1067 ;	genIpush
+   028B C0 04              1068 	push	ar4
+   028D C0 05              1069 	push	ar5
+   028F 74rF1              1070 	mov	a,#__str_10
+   0291 C0 E0              1071 	push	acc
+   0293 74s01              1072 	mov	a,#(__str_10 >> 8)
+   0295 C0 E0              1073 	push	acc
+                           1074 ;	genCall
+   0297 12s00r00           1075 	lcall	_printf_tiny
+   029A 15 81              1076 	dec	sp
+   029C 15 81              1077 	dec	sp
+   029E D0 05              1078 	pop	ar5
+   02A0 D0 04              1079 	pop	ar4
+                           1080 ;	EEPROM_UI.c:72: my_print(user_d, 2);
+                           1081 ;	genAssign
+   02A2 90s00r00           1082 	mov	dptr,#_my_print_PARM_2
+   02A5 74 02              1083 	mov	a,#0x02
+   02A7 F0                 1084 	movx	@dptr,a
+                           1085 ;	genCall
+   02A8 8C 82              1086 	mov	dpl,r4
+   02AA 8D 83              1087 	mov	dph,r5
+   02AC 12s00r00           1088 	lcall	_my_print
+                           1089 ;	EEPROM_UI.c:73: printf_tiny("\n\n\n");
+                           1090 ;	genIpush
+   02AF 74rF3              1091 	mov	a,#__str_11
+   02B1 C0 E0              1092 	push	acc
+   02B3 74s01              1093 	mov	a,#(__str_11 >> 8)
+   02B5 C0 E0              1094 	push	acc
+                           1095 ;	genCall
+   02B7 12s00r00           1096 	lcall	_printf_tiny
+   02BA 15 81              1097 	dec	sp
+   02BC 15 81              1098 	dec	sp
+                           1099 ;	EEPROM_UI.c:74: return 0;
+                           1100 ;	genRet
+   02BE 75 82 00           1101 	mov	dpl,#0x00
+                           1102 ;	Peephole 300	removed redundant label 00110$
+   02C1 22                 1103 	ret
+                           1104 ;------------------------------------------------------------
+                           1105 ;Allocation info for local variables in function 'hex_dump'
+                           1106 ;------------------------------------------------------------
+                           1107 ;sloc0                     Allocated with name '_hex_dump_sloc0_1_0'
+                           1108 ;sloc1                     Allocated with name '_hex_dump_sloc1_1_0'
+                           1109 ;sloc2                     Allocated with name '_hex_dump_sloc2_1_0'
+                           1110 ;sloc3                     Allocated with name '_hex_dump_sloc3_1_0'
+                           1111 ;user_address              Allocated with name '_hex_dump_user_address_1_1'
+                           1112 ;user_data                 Allocated with name '_hex_dump_user_data_1_1'
+                           1113 ;user_addr_start           Allocated with name '_hex_dump_user_addr_start_1_1'
+                           1114 ;user_addr_end             Allocated with name '_hex_dump_user_addr_end_1_1'
+                           1115 ;user_d                    Allocated with name '_hex_dump_user_d_1_1'
+                           1116 ;i                         Allocated with name '_hex_dump_i_1_1'
+                           1117 ;j                         Allocated with name '_hex_dump_j_1_1'
+                           1118 ;temp                      Allocated with name '_hex_dump_temp_1_1'
+                           1119 ;temp2                     Allocated with name '_hex_dump_temp2_1_1'
+                           1120 ;------------------------------------------------------------
+                           1121 ;	EEPROM_UI.c:78: unsigned char hex_dump(){
+                           1122 ;	-----------------------------------------
+                           1123 ;	 function hex_dump
+                           1124 ;	-----------------------------------------
+   02C2                    1125 _hex_dump:
+                           1126 ;	EEPROM_UI.c:84: do{
+   02C2                    1127 00107$:
+                           1128 ;	EEPROM_UI.c:85: printf_tiny("\Hex Dump Mode Entered!\n\rEnter valid start address between 000 (Hex) to 7FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
+                           1129 ;	genIpush
+   02C2 74rF7              1130 	mov	a,#__str_12
+   02C4 C0 E0              1131 	push	acc
+   02C6 74s01              1132 	mov	a,#(__str_12 >> 8)
+   02C8 C0 E0              1133 	push	acc
+                           1134 ;	genCall
+   02CA 12s00r00           1135 	lcall	_printf_tiny
+   02CD 15 81              1136 	dec	sp
+   02CF 15 81              1137 	dec	sp
+                           1138 ;	EEPROM_UI.c:86: user_address = rx_get_string();
+                           1139 ;	genCall
+   02D1 12s00r00           1140 	lcall	_rx_get_string
+   02D4 AA 82              1141 	mov	r2,dpl
+   02D6 AB 83              1142 	mov	r3,dph
+   02D8 AC F0              1143 	mov	r4,b
+                           1144 ;	EEPROM_UI.c:87: if(rx_array[0] == 0x08){
+                           1145 ;	genPointerGet
+                           1146 ;	genFarPointerGet
+   02DA 90s00r00           1147 	mov	dptr,#_rx_array
+   02DD E0                 1148 	movx	a,@dptr
+   02DE FD                 1149 	mov	r5,a
+                           1150 ;	genCmpEq
+                           1151 ;	gencjneshort
+                           1152 ;	Peephole 112.b	changed ljmp to sjmp
+                           1153 ;	Peephole 198.b	optimized misc jump sequence
+   02DF BD 08 04           1154 	cjne	r5,#0x08,00102$
+                           1155 ;	Peephole 200.b	removed redundant sjmp
+                           1156 ;	Peephole 300	removed redundant label 00148$
+                           1157 ;	Peephole 300	removed redundant label 00149$
+                           1158 ;	EEPROM_UI.c:88: return 0;
+                           1159 ;	genRet
+   02E2 75 82 00           1160 	mov	dpl,#0x00
+                           1161 ;	Peephole 251.a	replaced ljmp to ret with ret
+   02E5 22                 1162 	ret
+   02E6                    1163 00102$:
+                           1164 ;	EEPROM_UI.c:90: printf_tiny("\rAddress received = 0x%s\n", rx_array);
+                           1165 ;	genIpush
+   02E6 C0 02              1166 	push	ar2
+   02E8 C0 03              1167 	push	ar3
+   02EA C0 04              1168 	push	ar4
+   02EC 74r00              1169 	mov	a,#_rx_array
+   02EE C0 E0              1170 	push	acc
+   02F0 74s00              1171 	mov	a,#(_rx_array >> 8)
+   02F2 C0 E0              1172 	push	acc
+                           1173 ;	Peephole 181	changed mov to clr
+   02F4 E4                 1174 	clr	a
+   02F5 C0 E0              1175 	push	acc
+                           1176 ;	genIpush
+   02F7 74r79              1177 	mov	a,#__str_1
+   02F9 C0 E0              1178 	push	acc
+   02FB 74s00              1179 	mov	a,#(__str_1 >> 8)
+   02FD C0 E0              1180 	push	acc
+                           1181 ;	genCall
+   02FF 12s00r00           1182 	lcall	_printf_tiny
+   0302 E5 81              1183 	mov	a,sp
+   0304 24 FB              1184 	add	a,#0xfb
+   0306 F5 81              1185 	mov	sp,a
+   0308 D0 04              1186 	pop	ar4
+   030A D0 03              1187 	pop	ar3
+   030C D0 02              1188 	pop	ar2
+                           1189 ;	EEPROM_UI.c:91: user_addr_start = stoh(user_address);
+                           1190 ;	genCall
+   030E 8A 82              1191 	mov	dpl,r2
+   0310 8B 83              1192 	mov	dph,r3
+   0312 8C F0              1193 	mov	b,r4
+   0314 12s00r00           1194 	lcall	_stoh
+   0317 85 82*05           1195 	mov	_hex_dump_sloc3_1_0,dpl
+   031A 85 83*06           1196 	mov	(_hex_dump_sloc3_1_0 + 1),dph
+                           1197 ;	EEPROM_UI.c:92: if(user_addr_start == 0xFFFF || rx_array[0]==13){
+                           1198 ;	genCmpEq
+                           1199 ;	gencjneshort
+   031D E5*05              1200 	mov	a,_hex_dump_sloc3_1_0
+   031F B4 FF 07           1201 	cjne	a,#0xFF,00150$
+   0322 E5*06              1202 	mov	a,(_hex_dump_sloc3_1_0 + 1)
+   0324 B4 FF 02           1203 	cjne	a,#0xFF,00150$
+                           1204 ;	Peephole 112.b	changed ljmp to sjmp
+   0327 80 08              1205 	sjmp	00103$
+   0329                    1206 00150$:
+                           1207 ;	genPointerGet
+                           1208 ;	genFarPointerGet
+   0329 90s00r00           1209 	mov	dptr,#_rx_array
+   032C E0                 1210 	movx	a,@dptr
+   032D FC                 1211 	mov	r4,a
+                           1212 ;	genCmpEq
+                           1213 ;	gencjneshort
+                           1214 ;	Peephole 112.b	changed ljmp to sjmp
+                           1215 ;	Peephole 198.b	optimized misc jump sequence
+   032E BC 0D 0F           1216 	cjne	r4,#0x0D,00108$
+                           1217 ;	Peephole 200.b	removed redundant sjmp
+                           1218 ;	Peephole 300	removed redundant label 00151$
+                           1219 ;	Peephole 300	removed redundant label 00152$
+   0331                    1220 00103$:
+                           1221 ;	EEPROM_UI.c:93: printf_tiny("\rEnter valid address!\n\r");
+                           1222 ;	genIpush
+   0331 74r93              1223 	mov	a,#__str_2
+   0333 C0 E0              1224 	push	acc
+   0335 74s00              1225 	mov	a,#(__str_2 >> 8)
+   0337 C0 E0              1226 	push	acc
+                           1227 ;	genCall
+   0339 12s00r00           1228 	lcall	_printf_tiny
+   033C 15 81              1229 	dec	sp
+   033E 15 81              1230 	dec	sp
+   0340                    1231 00108$:
+                           1232 ;	EEPROM_UI.c:95: }while(user_addr_end == 0xFFFF || rx_array[0]==13);
+                           1233 ;	genPointerGet
+                           1234 ;	genFarPointerGet
+   0340 90s00r00           1235 	mov	dptr,#_rx_array
+   0343 E0                 1236 	movx	a,@dptr
+   0344 FC                 1237 	mov	r4,a
+                           1238 ;	genCmpEq
+                           1239 ;	gencjneshort
+   0345 BC 0D 03           1240 	cjne	r4,#0x0D,00153$
+   0348 02s02rC2           1241 	ljmp	00107$
+   034B                    1242 00153$:
+                           1243 ;	EEPROM_UI.c:96: do{
+   034B                    1244 00116$:
+                           1245 ;	EEPROM_UI.c:97: printf_tiny("\rHex Dump Mode Entered!\n\rEnter valid end address between 000 (Hex) to 7FF (Hex).\n\rPress backspace (followed by enter) to exit\n\r");
+                           1246 ;	genIpush
+   034B 74r78              1247 	mov	a,#__str_13
+   034D C0 E0              1248 	push	acc
+   034F 74s02              1249 	mov	a,#(__str_13 >> 8)
+   0351 C0 E0              1250 	push	acc
+                           1251 ;	genCall
+   0353 12s00r00           1252 	lcall	_printf_tiny
+   0356 15 81              1253 	dec	sp
+   0358 15 81              1254 	dec	sp
+                           1255 ;	EEPROM_UI.c:98: user_address = rx_get_string();
+                           1256 ;	genCall
+   035A 12s00r00           1257 	lcall	_rx_get_string
+   035D AC 82              1258 	mov	r4,dpl
+   035F AD 83              1259 	mov	r5,dph
+   0361 AE F0              1260 	mov	r6,b
+                           1261 ;	EEPROM_UI.c:99: if(rx_array[0] == 0x08){
+                           1262 ;	genPointerGet
+                           1263 ;	genFarPointerGet
+   0363 90s00r00           1264 	mov	dptr,#_rx_array
+   0366 E0                 1265 	movx	a,@dptr
+   0367 FF                 1266 	mov	r7,a
+                           1267 ;	genCmpEq
+                           1268 ;	gencjneshort
+                           1269 ;	Peephole 112.b	changed ljmp to sjmp
+                           1270 ;	Peephole 198.b	optimized misc jump sequence
+   0368 BF 08 04           1271 	cjne	r7,#0x08,00111$
+                           1272 ;	Peephole 200.b	removed redundant sjmp
+                           1273 ;	Peephole 300	removed redundant label 00154$
+                           1274 ;	Peephole 300	removed redundant label 00155$
+                           1275 ;	EEPROM_UI.c:100: return 0;
+                           1276 ;	genRet
+   036B 75 82 00           1277 	mov	dpl,#0x00
+                           1278 ;	Peephole 251.a	replaced ljmp to ret with ret
+   036E 22                 1279 	ret
+   036F                    1280 00111$:
+                           1281 ;	EEPROM_UI.c:102: printf_tiny("\rAddress received = 0x%s\n", rx_array);
+                           1282 ;	genIpush
+   036F C0 04              1283 	push	ar4
+   0371 C0 05              1284 	push	ar5
+   0373 C0 06              1285 	push	ar6
+   0375 74r00              1286 	mov	a,#_rx_array
+   0377 C0 E0              1287 	push	acc
+   0379 74s00              1288 	mov	a,#(_rx_array >> 8)
+   037B C0 E0              1289 	push	acc
+                           1290 ;	Peephole 181	changed mov to clr
+   037D E4                 1291 	clr	a
+   037E C0 E0              1292 	push	acc
+                           1293 ;	genIpush
+   0380 74r79              1294 	mov	a,#__str_1
+   0382 C0 E0              1295 	push	acc
+   0384 74s00              1296 	mov	a,#(__str_1 >> 8)
+   0386 C0 E0              1297 	push	acc
+                           1298 ;	genCall
+   0388 12s00r00           1299 	lcall	_printf_tiny
+   038B E5 81              1300 	mov	a,sp
+   038D 24 FB              1301 	add	a,#0xfb
+   038F F5 81              1302 	mov	sp,a
+   0391 D0 06              1303 	pop	ar6
+   0393 D0 05              1304 	pop	ar5
+   0395 D0 04              1305 	pop	ar4
+                           1306 ;	EEPROM_UI.c:103: user_addr_end = stoh(user_address);
+                           1307 ;	genCall
+   0397 8C 82              1308 	mov	dpl,r4
+   0399 8D 83              1309 	mov	dph,r5
+   039B 8E F0              1310 	mov	b,r6
+   039D 12s00r00           1311 	lcall	_stoh
+   03A0 AC 82              1312 	mov	r4,dpl
+   03A2 AD 83              1313 	mov	r5,dph
+                           1314 ;	EEPROM_UI.c:104: if(user_addr_end == 0xFFFF || rx_array[0]==13){
+                           1315 ;	genCmpEq
+                           1316 ;	gencjne
+                           1317 ;	gencjneshort
+                           1318 ;	Peephole 241.c	optimized compare
+   03A4 E4                 1319 	clr	a
+   03A5 BC FF 04           1320 	cjne	r4,#0xFF,00156$
+   03A8 BD FF 01           1321 	cjne	r5,#0xFF,00156$
+   03AB 04                 1322 	inc	a
+   03AC                    1323 00156$:
+                           1324 ;	Peephole 300	removed redundant label 00157$
+                           1325 ;	genIfx
+   03AC FE                 1326 	mov	r6,a
+                           1327 ;	Peephole 105	removed redundant mov
+                           1328 ;	genIfxJump
+                           1329 ;	Peephole 108.b	removed ljmp by inverse jump logic
+   03AD 70 08              1330 	jnz	00112$
+                           1331 ;	Peephole 300	removed redundant label 00158$
+                           1332 ;	genPointerGet
+                           1333 ;	genFarPointerGet
+   03AF 90s00r00           1334 	mov	dptr,#_rx_array
+   03B2 E0                 1335 	movx	a,@dptr
+   03B3 FF                 1336 	mov	r7,a
+                           1337 ;	genCmpEq
+                           1338 ;	gencjneshort
+                           1339 ;	Peephole 112.b	changed ljmp to sjmp
+                           1340 ;	Peephole 198.b	optimized misc jump sequence
+   03B4 BF 0D 1B           1341 	cjne	r7,#0x0D,00117$
+                           1342 ;	Peephole 200.b	removed redundant sjmp
+                           1343 ;	Peephole 300	removed redundant label 00159$
+                           1344 ;	Peephole 300	removed redundant label 00160$
+   03B7                    1345 00112$:
+                           1346 ;	EEPROM_UI.c:105: printf_tiny("\rEnter valid address!\n\r");
+                           1347 ;	genIpush
+   03B7 C0 04              1348 	push	ar4
+   03B9 C0 05              1349 	push	ar5
+   03BB C0 06              1350 	push	ar6
+   03BD 74r93              1351 	mov	a,#__str_2
+   03BF C0 E0              1352 	push	acc
+   03C1 74s00              1353 	mov	a,#(__str_2 >> 8)
+   03C3 C0 E0              1354 	push	acc
+                           1355 ;	genCall
+   03C5 12s00r00           1356 	lcall	_printf_tiny
+   03C8 15 81              1357 	dec	sp
+   03CA 15 81              1358 	dec	sp
+   03CC D0 06              1359 	pop	ar6
+   03CE D0 05              1360 	pop	ar5
+   03D0 D0 04              1361 	pop	ar4
+   03D2                    1362 00117$:
+                           1363 ;	EEPROM_UI.c:107: }while(user_addr_end == 0xFFFF || rx_array[0]==13);
+                           1364 ;	genIfx
+   03D2 EE                 1365 	mov	a,r6
+                           1366 ;	genIfxJump
+   03D3 60 03              1367 	jz	00161$
+   03D5 02s03r4B           1368 	ljmp	00116$
+   03D8                    1369 00161$:
+                           1370 ;	genPointerGet
+                           1371 ;	genFarPointerGet
+   03D8 90s00r00           1372 	mov	dptr,#_rx_array
+   03DB E0                 1373 	movx	a,@dptr
+   03DC FE                 1374 	mov	r6,a
+                           1375 ;	genCmpEq
+                           1376 ;	gencjneshort
+   03DD BE 0D 03           1377 	cjne	r6,#0x0D,00162$
+   03E0 02s03r4B           1378 	ljmp	00116$
+   03E3                    1379 00162$:
+                           1380 ;	EEPROM_UI.c:108: printf_tiny("\rHEX DUMP FOR EEPROM.\n\r(All values are in HEX FORMAT)\n");
+                           1381 ;	genIpush
+   03E3 C0 04              1382 	push	ar4
+   03E5 C0 05              1383 	push	ar5
+   03E7 74rF8              1384 	mov	a,#__str_14
+   03E9 C0 E0              1385 	push	acc
+   03EB 74s02              1386 	mov	a,#(__str_14 >> 8)
+   03ED C0 E0              1387 	push	acc
+                           1388 ;	genCall
+   03EF 12s00r00           1389 	lcall	_printf_tiny
+   03F2 15 81              1390 	dec	sp
+   03F4 15 81              1391 	dec	sp
+   03F6 D0 05              1392 	pop	ar5
+   03F8 D0 04              1393 	pop	ar4
+                           1394 ;	EEPROM_UI.c:109: user_data = I2C_Read_SEQ_EEPROM(user_addr_start, user_addr_end);
+                           1395 ;	genAssign
+   03FA 90s00r00           1396 	mov	dptr,#_I2C_Read_SEQ_EEPROM_PARM_2
+   03FD EC                 1397 	mov	a,r4
+   03FE F0                 1398 	movx	@dptr,a
+   03FF A3                 1399 	inc	dptr
+   0400 ED                 1400 	mov	a,r5
+   0401 F0                 1401 	movx	@dptr,a
+                           1402 ;	genCall
+   0402 85*05 82           1403 	mov	dpl,_hex_dump_sloc3_1_0
+   0405 85*06 83           1404 	mov	dph,(_hex_dump_sloc3_1_0 + 1)
+   0408 C0 04              1405 	push	ar4
+   040A C0 05              1406 	push	ar5
+   040C 12s00r00           1407 	lcall	_I2C_Read_SEQ_EEPROM
+   040F 85 82*00           1408 	mov	_hex_dump_sloc0_1_0,dpl
+   0412 85 83*01           1409 	mov	(_hex_dump_sloc0_1_0 + 1),dph
+   0415 85 F0*02           1410 	mov	(_hex_dump_sloc0_1_0 + 2),b
+   0418 D0 05              1411 	pop	ar5
+   041A D0 04              1412 	pop	ar4
+                           1413 ;	EEPROM_UI.c:110: i=user_addr_end - user_addr_start + 1;
+                           1414 ;	genMinus
+   041C EC                 1415 	mov	a,r4
+   041D C3                 1416 	clr	c
+   041E 95*05              1417 	subb	a,_hex_dump_sloc3_1_0
+   0420 F9                 1418 	mov	r1,a
+   0421 ED                 1419 	mov	a,r5
+   0422 95*06              1420 	subb	a,(_hex_dump_sloc3_1_0 + 1)
+   0424 FE                 1421 	mov	r6,a
+                           1422 ;	genPlus
+                           1423 ;     genPlusIncr
+   0425 09                 1424 	inc	r1
+   0426 B9 00 01           1425 	cjne	r1,#0x00,00163$
+   0429 0E                 1426 	inc	r6
+   042A                    1427 00163$:
+                           1428 ;	EEPROM_UI.c:114: if((i%16)>0){
+                           1429 ;	genAnd
+   042A E9                 1430 	mov	a,r1
+   042B 54 0F              1431 	anl	a,#0x0F
+                           1432 ;	Peephole 108.c	removed ljmp by inverse jump logic
+   042D 60 29              1433 	jz	00120$
+                           1434 ;	Peephole 300	removed redundant label 00164$
+                           1435 ;	EEPROM_UI.c:115: temp2=((user_addr_end - user_addr_start + 1)/16) +1;
+                           1436 ;	genMinus
+   042F EC                 1437 	mov	a,r4
+   0430 C3                 1438 	clr	c
+   0431 95*05              1439 	subb	a,_hex_dump_sloc3_1_0
+   0433 FE                 1440 	mov	r6,a
+   0434 ED                 1441 	mov	a,r5
+   0435 95*06              1442 	subb	a,(_hex_dump_sloc3_1_0 + 1)
+   0437 FF                 1443 	mov	r7,a
+                           1444 ;	genPlus
+                           1445 ;     genPlusIncr
+   0438 0E                 1446 	inc	r6
+   0439 BE 00 01           1447 	cjne	r6,#0x00,00165$
+   043C 0F                 1448 	inc	r7
+   043D                    1449 00165$:
+                           1450 ;	genRightShift
+                           1451 ;	genRightShiftLiteral
+                           1452 ;	genrshTwo
+   043D EF                 1453 	mov	a,r7
+   043E C4                 1454 	swap	a
+   043F CE                 1455 	xch	a,r6
+   0440 C4                 1456 	swap	a
+   0441 54 0F              1457 	anl	a,#0x0f
+   0443 6E                 1458 	xrl	a,r6
+   0444 CE                 1459 	xch	a,r6
+   0445 54 0F              1460 	anl	a,#0x0f
+   0447 CE                 1461 	xch	a,r6
+   0448 6E                 1462 	xrl	a,r6
+   0449 CE                 1463 	xch	a,r6
+   044A FF                 1464 	mov	r7,a
+                           1465 ;	genPlus
+   044B 90s00r00           1466 	mov	dptr,#_hex_dump_temp2_1_1
+                           1467 ;     genPlusIncr
+   044E 74 01              1468 	mov	a,#0x01
+                           1469 ;	Peephole 236.a	used r6 instead of ar6
+   0450 2E                 1470 	add	a,r6
+   0451 F0                 1471 	movx	@dptr,a
+                           1472 ;	Peephole 181	changed mov to clr
+   0452 E4                 1473 	clr	a
+                           1474 ;	Peephole 236.b	used r7 instead of ar7
+   0453 3F                 1475 	addc	a,r7
+   0454 A3                 1476 	inc	dptr
+   0455 F0                 1477 	movx	@dptr,a
+                           1478 ;	Peephole 112.b	changed ljmp to sjmp
+   0456 80 24              1479 	sjmp	00145$
+   0458                    1480 00120$:
+                           1481 ;	EEPROM_UI.c:119: temp2 =(user_addr_end - user_addr_start + 1)/16;
+                           1482 ;	genMinus
+   0458 EC                 1483 	mov	a,r4
+   0459 C3                 1484 	clr	c
+   045A 95*05              1485 	subb	a,_hex_dump_sloc3_1_0
+   045C FC                 1486 	mov	r4,a
+   045D ED                 1487 	mov	a,r5
+   045E 95*06              1488 	subb	a,(_hex_dump_sloc3_1_0 + 1)
+   0460 FD                 1489 	mov	r5,a
+                           1490 ;	genPlus
+                           1491 ;     genPlusIncr
+   0461 0C                 1492 	inc	r4
+   0462 BC 00 01           1493 	cjne	r4,#0x00,00166$
+   0465 0D                 1494 	inc	r5
+   0466                    1495 00166$:
+                           1496 ;	genRightShift
+                           1497 ;	genRightShiftLiteral
+                           1498 ;	genrshTwo
+   0466 ED                 1499 	mov	a,r5
+   0467 C4                 1500 	swap	a
+   0468 CC                 1501 	xch	a,r4
+   0469 C4                 1502 	swap	a
+   046A 54 0F              1503 	anl	a,#0x0f
+   046C 6C                 1504 	xrl	a,r4
+   046D CC                 1505 	xch	a,r4
+   046E 54 0F              1506 	anl	a,#0x0f
+   0470 CC                 1507 	xch	a,r4
+   0471 6C                 1508 	xrl	a,r4
+   0472 CC                 1509 	xch	a,r4
+   0473 FD                 1510 	mov	r5,a
+                           1511 ;	genAssign
+   0474 90s00r00           1512 	mov	dptr,#_hex_dump_temp2_1_1
+   0477 EC                 1513 	mov	a,r4
+   0478 F0                 1514 	movx	@dptr,a
+   0479 A3                 1515 	inc	dptr
+   047A ED                 1516 	mov	a,r5
+   047B F0                 1517 	movx	@dptr,a
+                           1518 ;	EEPROM_UI.c:124: for(i=0; i<temp2; i++){
+   047C                    1519 00145$:
+                           1520 ;	genAssign
+   047C 90s00r00           1521 	mov	dptr,#_hex_dump_temp2_1_1
+   047F E0                 1522 	movx	a,@dptr
+   0480 FC                 1523 	mov	r4,a
+   0481 A3                 1524 	inc	dptr
+   0482 E0                 1525 	movx	a,@dptr
+   0483 FD                 1526 	mov	r5,a
+                           1527 ;	genAssign
+   0484 7E 00              1528 	mov	r6,#0x00
+   0486 7F 00              1529 	mov	r7,#0x00
+   0488                    1530 00126$:
+                           1531 ;	genCmpLt
+                           1532 ;	genCmp
+   0488 C3                 1533 	clr	c
+   0489 EE                 1534 	mov	a,r6
+   048A 9C                 1535 	subb	a,r4
+   048B EF                 1536 	mov	a,r7
+   048C 9D                 1537 	subb	a,r5
+                           1538 ;	genIfxJump
+   048D 40 03              1539 	jc	00167$
+   048F 02s05rF2           1540 	ljmp	00129$
+   0492                    1541 00167$:
+                           1542 ;	EEPROM_UI.c:126: temp = temp + (i*16);
+                           1543 ;	genIpush
+   0492 C0 04              1544 	push	ar4
+   0494 C0 05              1545 	push	ar5
+                           1546 ;	genLeftShift
+                           1547 ;	genLeftShiftLiteral
+                           1548 ;	genlshTwo
+   0496 8E 00              1549 	mov	ar0,r6
+   0498 EF                 1550 	mov	a,r7
+   0499 C4                 1551 	swap	a
+   049A 54 F0              1552 	anl	a,#0xf0
+   049C C8                 1553 	xch	a,r0
+   049D C4                 1554 	swap	a
+   049E C8                 1555 	xch	a,r0
+   049F 68                 1556 	xrl	a,r0
+   04A0 C8                 1557 	xch	a,r0
+   04A1 54 F0              1558 	anl	a,#0xf0
+   04A3 C8                 1559 	xch	a,r0
+   04A4 68                 1560 	xrl	a,r0
+   04A5 F9                 1561 	mov	r1,a
+                           1562 ;	genPlus
+                           1563 ;	Peephole 236.g	used r0 instead of ar0
+   04A6 E8                 1564 	mov	a,r0
+   04A7 25*05              1565 	add	a,_hex_dump_sloc3_1_0
+   04A9 FC                 1566 	mov	r4,a
+                           1567 ;	Peephole 236.g	used r1 instead of ar1
+   04AA E9                 1568 	mov	a,r1
+   04AB 35*06              1569 	addc	a,(_hex_dump_sloc3_1_0 + 1)
+   04AD FD                 1570 	mov	r5,a
+                           1571 ;	EEPROM_UI.c:127: printf_tiny("\n");
+                           1572 ;	genIpush
+   04AE C0 04              1573 	push	ar4
+   04B0 C0 05              1574 	push	ar5
+   04B2 C0 06              1575 	push	ar6
+   04B4 C0 07              1576 	push	ar7
+   04B6 C0 00              1577 	push	ar0
+   04B8 C0 01              1578 	push	ar1
+   04BA 74r2F              1579 	mov	a,#__str_15
+   04BC C0 E0              1580 	push	acc
+   04BE 74s03              1581 	mov	a,#(__str_15 >> 8)
+   04C0 C0 E0              1582 	push	acc
+                           1583 ;	genCall
+   04C2 12s00r00           1584 	lcall	_printf_tiny
+   04C5 15 81              1585 	dec	sp
+   04C7 15 81              1586 	dec	sp
+   04C9 D0 01              1587 	pop	ar1
+   04CB D0 00              1588 	pop	ar0
+   04CD D0 07              1589 	pop	ar7
+   04CF D0 06              1590 	pop	ar6
+   04D1 D0 05              1591 	pop	ar5
+   04D3 D0 04              1592 	pop	ar4
+                           1593 ;	EEPROM_UI.c:128: printf_tiny("\r");
+                           1594 ;	genIpush
+   04D5 C0 04              1595 	push	ar4
+   04D7 C0 05              1596 	push	ar5
+   04D9 C0 06              1597 	push	ar6
+   04DB C0 07              1598 	push	ar7
+   04DD C0 00              1599 	push	ar0
+   04DF C0 01              1600 	push	ar1
+   04E1 74rEF              1601 	mov	a,#__str_9
+   04E3 C0 E0              1602 	push	acc
+   04E5 74s01              1603 	mov	a,#(__str_9 >> 8)
+   04E7 C0 E0              1604 	push	acc
+                           1605 ;	genCall
+   04E9 12s00r00           1606 	lcall	_printf_tiny
+   04EC 15 81              1607 	dec	sp
+   04EE 15 81              1608 	dec	sp
+   04F0 D0 01              1609 	pop	ar1
+   04F2 D0 00              1610 	pop	ar0
+   04F4 D0 07              1611 	pop	ar7
+   04F6 D0 06              1612 	pop	ar6
+   04F8 D0 05              1613 	pop	ar5
+   04FA D0 04              1614 	pop	ar4
+                           1615 ;	EEPROM_UI.c:130: my_print(temp, 3);
+                           1616 ;	genAssign
+   04FC 90s00r00           1617 	mov	dptr,#_my_print_PARM_2
+   04FF 74 03              1618 	mov	a,#0x03
+   0501 F0                 1619 	movx	@dptr,a
+                           1620 ;	genCall
+   0502 8C 82              1621 	mov	dpl,r4
+   0504 8D 83              1622 	mov	dph,r5
+   0506 C0 04              1623 	push	ar4
+   0508 C0 05              1624 	push	ar5
+   050A C0 06              1625 	push	ar6
+   050C C0 07              1626 	push	ar7
+   050E C0 00              1627 	push	ar0
+   0510 C0 01              1628 	push	ar1
+   0512 12s00r00           1629 	lcall	_my_print
+   0515 D0 01              1630 	pop	ar1
+   0517 D0 00              1631 	pop	ar0
+   0519 D0 07              1632 	pop	ar7
+   051B D0 06              1633 	pop	ar6
+   051D D0 05              1634 	pop	ar5
+   051F D0 04              1635 	pop	ar4
+                           1636 ;	EEPROM_UI.c:131: printf_tiny(": ");
+                           1637 ;	genIpush
+   0521 C0 04              1638 	push	ar4
+   0523 C0 05              1639 	push	ar5
+   0525 C0 06              1640 	push	ar6
+   0527 C0 07              1641 	push	ar7
+   0529 C0 00              1642 	push	ar0
+   052B C0 01              1643 	push	ar1
+   052D 74r31              1644 	mov	a,#__str_16
+   052F C0 E0              1645 	push	acc
+   0531 74s03              1646 	mov	a,#(__str_16 >> 8)
+   0533 C0 E0              1647 	push	acc
+                           1648 ;	genCall
+   0535 12s00r00           1649 	lcall	_printf_tiny
+   0538 15 81              1650 	dec	sp
+   053A 15 81              1651 	dec	sp
+   053C D0 01              1652 	pop	ar1
+   053E D0 00              1653 	pop	ar0
+   0540 D0 07              1654 	pop	ar7
+   0542 D0 06              1655 	pop	ar6
+   0544 D0 05              1656 	pop	ar5
+   0546 D0 04              1657 	pop	ar4
+                           1658 ;	EEPROM_UI.c:143: return 0;
+                           1659 ;	genIpop
+   0548 D0 05              1660 	pop	ar5
+   054A D0 04              1661 	pop	ar4
+                           1662 ;	EEPROM_UI.c:134: for(j=16*i; j<((i*16)+16); j++){
+                           1663 ;	genAssign
+   054C 8E*03              1664 	mov	_hex_dump_sloc1_1_0,r6
+   054E 8F*04              1665 	mov	(_hex_dump_sloc1_1_0 + 1),r7
+                           1666 ;	genPlus
+                           1667 ;     genPlusIncr
+   0550 74 10              1668 	mov	a,#0x10
+                           1669 ;	Peephole 236.a	used r0 instead of ar0
+   0552 28                 1670 	add	a,r0
+   0553 FB                 1671 	mov	r3,a
+                           1672 ;	Peephole 181	changed mov to clr
+   0554 E4                 1673 	clr	a
+                           1674 ;	Peephole 236.b	used r1 instead of ar1
+   0555 39                 1675 	addc	a,r1
+   0556 FE                 1676 	mov	r6,a
+                           1677 ;	genAssign
+   0557                    1678 00122$:
+                           1679 ;	genCmpLt
+                           1680 ;	genCmp
+   0557 C3                 1681 	clr	c
+   0558 E8                 1682 	mov	a,r0
+   0559 9B                 1683 	subb	a,r3
+   055A E9                 1684 	mov	a,r1
+   055B 9E                 1685 	subb	a,r6
+                           1686 ;	genIfxJump
+                           1687 ;	Peephole 108.a	removed ljmp by inverse jump logic
+   055C 50 71              1688 	jnc	00125$
+                           1689 ;	Peephole 300	removed redundant label 00168$
+                           1690 ;	EEPROM_UI.c:135: my_print(*(user_data+j), 2);
+                           1691 ;	genIpush
+   055E C0 04              1692 	push	ar4
+   0560 C0 05              1693 	push	ar5
+                           1694 ;	genPlus
+                           1695 ;	Peephole 236.g	used r0 instead of ar0
+   0562 E8                 1696 	mov	a,r0
+   0563 25*00              1697 	add	a,_hex_dump_sloc0_1_0
+   0565 FC                 1698 	mov	r4,a
+                           1699 ;	Peephole 236.g	used r1 instead of ar1
+   0566 E9                 1700 	mov	a,r1
+   0567 35*01              1701 	addc	a,(_hex_dump_sloc0_1_0 + 1)
+   0569 FD                 1702 	mov	r5,a
+   056A AA*02              1703 	mov	r2,(_hex_dump_sloc0_1_0 + 2)
+                           1704 ;	genPointerGet
+                           1705 ;	genGenPointerGet
+   056C 8C 82              1706 	mov	dpl,r4
+   056E 8D 83              1707 	mov	dph,r5
+   0570 8A F0              1708 	mov	b,r2
+   0572 12s00r00           1709 	lcall	__gptrget
+   0575 FC                 1710 	mov	r4,a
+                           1711 ;	genCast
+   0576 7A 00              1712 	mov	r2,#0x00
+                           1713 ;	genAssign
+   0578 90s00r00           1714 	mov	dptr,#_my_print_PARM_2
+   057B 74 02              1715 	mov	a,#0x02
+   057D F0                 1716 	movx	@dptr,a
+                           1717 ;	genCall
+   057E 8C 82              1718 	mov	dpl,r4
+   0580 8A 83              1719 	mov	dph,r2
+   0582 C0 03              1720 	push	ar3
+   0584 C0 04              1721 	push	ar4
+   0586 C0 05              1722 	push	ar5
+   0588 C0 06              1723 	push	ar6
+   058A C0 00              1724 	push	ar0
+   058C C0 01              1725 	push	ar1
+   058E 12s00r00           1726 	lcall	_my_print
+   0591 D0 01              1727 	pop	ar1
+   0593 D0 00              1728 	pop	ar0
+   0595 D0 06              1729 	pop	ar6
+   0597 D0 05              1730 	pop	ar5
+   0599 D0 04              1731 	pop	ar4
+   059B D0 03              1732 	pop	ar3
+                           1733 ;	EEPROM_UI.c:136: printf_tiny("  ");
+                           1734 ;	genIpush
+   059D C0 03              1735 	push	ar3
+   059F C0 04              1736 	push	ar4
+   05A1 C0 05              1737 	push	ar5
+   05A3 C0 06              1738 	push	ar6
+   05A5 C0 00              1739 	push	ar0
+   05A7 C0 01              1740 	push	ar1
+   05A9 74r34              1741 	mov	a,#__str_17
+   05AB C0 E0              1742 	push	acc
+   05AD 74s03              1743 	mov	a,#(__str_17 >> 8)
+   05AF C0 E0              1744 	push	acc
+                           1745 ;	genCall
+   05B1 12s00r00           1746 	lcall	_printf_tiny
+   05B4 15 81              1747 	dec	sp
+   05B6 15 81              1748 	dec	sp
+   05B8 D0 01              1749 	pop	ar1
+   05BA D0 00              1750 	pop	ar0
+   05BC D0 06              1751 	pop	ar6
+   05BE D0 05              1752 	pop	ar5
+   05C0 D0 04              1753 	pop	ar4
+   05C2 D0 03              1754 	pop	ar3
+                           1755 ;	EEPROM_UI.c:134: for(j=16*i; j<((i*16)+16); j++){
+                           1756 ;	genPlus
+                           1757 ;     genPlusIncr
+   05C4 08                 1758 	inc	r0
+   05C5 B8 00 01           1759 	cjne	r0,#0x00,00169$
+   05C8 09                 1760 	inc	r1
+   05C9                    1761 00169$:
+                           1762 ;	genIpop
+   05C9 D0 05              1763 	pop	ar5
+   05CB D0 04              1764 	pop	ar4
+                           1765 ;	Peephole 112.b	changed ljmp to sjmp
+   05CD 80 88              1766 	sjmp	00122$
+   05CF                    1767 00125$:
+                           1768 ;	EEPROM_UI.c:140: printf_tiny("\n");
+                           1769 ;	genIpush
+   05CF C0 04              1770 	push	ar4
+   05D1 C0 05              1771 	push	ar5
+   05D3 74r2F              1772 	mov	a,#__str_15
+   05D5 C0 E0              1773 	push	acc
+   05D7 74s03              1774 	mov	a,#(__str_15 >> 8)
+   05D9 C0 E0              1775 	push	acc
+                           1776 ;	genCall
+   05DB 12s00r00           1777 	lcall	_printf_tiny
+   05DE 15 81              1778 	dec	sp
+   05E0 15 81              1779 	dec	sp
+   05E2 D0 05              1780 	pop	ar5
+   05E4 D0 04              1781 	pop	ar4
+                           1782 ;	EEPROM_UI.c:124: for(i=0; i<temp2; i++){
+                           1783 ;	genPlus
+                           1784 ;     genPlusIncr
+   05E6 74 01              1785 	mov	a,#0x01
+   05E8 25*03              1786 	add	a,_hex_dump_sloc1_1_0
+   05EA FE                 1787 	mov	r6,a
+                           1788 ;	Peephole 181	changed mov to clr
+   05EB E4                 1789 	clr	a
+   05EC 35*04              1790 	addc	a,(_hex_dump_sloc1_1_0 + 1)
+   05EE FF                 1791 	mov	r7,a
+   05EF 02s04r88           1792 	ljmp	00126$
+   05F2                    1793 00129$:
+                           1794 ;	EEPROM_UI.c:142: printf_tiny("\n");
+                           1795 ;	genIpush
+   05F2 74r2F              1796 	mov	a,#__str_15
+   05F4 C0 E0              1797 	push	acc
+   05F6 74s03              1798 	mov	a,#(__str_15 >> 8)
+   05F8 C0 E0              1799 	push	acc
+                           1800 ;	genCall
+   05FA 12s00r00           1801 	lcall	_printf_tiny
+   05FD 15 81              1802 	dec	sp
+   05FF 15 81              1803 	dec	sp
+                           1804 ;	EEPROM_UI.c:143: return 0;
+                           1805 ;	genRet
+   0601 75 82 00           1806 	mov	dpl,#0x00
+                           1807 ;	Peephole 300	removed redundant label 00130$
+   0604 22                 1808 	ret
+                           1809 ;------------------------------------------------------------
+                           1810 ;Allocation info for local variables in function 'eereset'
+                           1811 ;------------------------------------------------------------
+                           1812 ;i                         Allocated with name '_eereset_i_1_1'
+                           1813 ;------------------------------------------------------------
+                           1814 ;	EEPROM_UI.c:147: void eereset(){
+                           1815 ;	-----------------------------------------
+                           1816 ;	 function eereset
+                           1817 ;	-----------------------------------------
+   0605                    1818 _eereset:
+                           1819 ;	EEPROM_UI.c:149: I2C_start();
+                           1820 ;	genCall
+   0605 12s00r00           1821 	lcall	_I2C_start
+                           1822 ;	EEPROM_UI.c:150: for(i=0; i<9; i++){
+                           1823 ;	genAssign
+   0608 7A 00              1824 	mov	r2,#0x00
+   060A                    1825 00101$:
+                           1826 ;	genCmpLt
+                           1827 ;	genCmp
+   060A BA 09 00           1828 	cjne	r2,#0x09,00110$
+   060D                    1829 00110$:
+                           1830 ;	genIfxJump
+                           1831 ;	Peephole 108.a	removed ljmp by inverse jump logic
+   060D 50 09              1832 	jnc	00104$
+                           1833 ;	Peephole 300	removed redundant label 00111$
+                           1834 ;	EEPROM_UI.c:151: SDA = 1;
+                           1835 ;	genAssign
+   060F D2 96              1836 	setb	_P1_6
+                           1837 ;	EEPROM_UI.c:152: SCL = 1;
+                           1838 ;	genAssign
+   0611 D2 95              1839 	setb	_P1_5
+                           1840 ;	EEPROM_UI.c:153: SCL = 0;
+                           1841 ;	genAssign
+   0613 C2 95              1842 	clr	_P1_5
+                           1843 ;	EEPROM_UI.c:150: for(i=0; i<9; i++){
+                           1844 ;	genPlus
+                           1845 ;     genPlusIncr
+   0615 0A                 1846 	inc	r2
+                           1847 ;	Peephole 112.b	changed ljmp to sjmp
+   0616 80 F2              1848 	sjmp	00101$
+   0618                    1849 00104$:
+                           1850 ;	EEPROM_UI.c:156: I2C_start();
+                           1851 ;	genCall
+   0618 12s00r00           1852 	lcall	_I2C_start
+                           1853 ;	EEPROM_UI.c:157: I2C_stop();
+                           1854 ;	genCall
+                           1855 ;	Peephole 253.b	replaced lcall/ret with ljmp
+   061B 02s00r00           1856 	ljmp	_I2C_stop
+                           1857 ;
+                           1858 	.area CSEG    (CODE)
+                           1859 	.area CONST   (CODE)
+   0000                    1860 __str_0:
+   0000 0D                 1861 	.db 0x0D
+   0001 57 72 69 74 65 20  1862 	.ascii "Write Mode Entered!"
+        4D 6F 64 65 20 45
+        6E 74 65 72 65 64
+        21
+   0014 0A                 1863 	.db 0x0A
+   0015 0D                 1864 	.db 0x0D
+   0016 45 6E 74 65 72 20  1865 	.ascii "Enter valid address between 000 (Hex) "
+        76 61 6C 69 64 20
+        61 64 64 72 65 73
+        73 20 62 65 74 77
+        65 65 6E 20 30 30
+        30 20 28 48 65 78
+        29 20
+   003C 74 6F 20 37 46 46  1866 	.ascii "to 7FF (Hex)."
+        20 28 48 65 78 29
+        2E
+   0049 0A                 1867 	.db 0x0A
+   004A 0D                 1868 	.db 0x0D
+   004B 50 72 65 73 73 20  1869 	.ascii "Press backspace (followed by enter) to exit"
+        62 61 63 6B 73 70
+        61 63 65 20 28 66
+        6F 6C 6C 6F 77 65
+        64 20 62 79 20 65
+        6E 74 65 72 29 20
+        74 6F 20 65 78 69
+        74
+   0076 0A                 1870 	.db 0x0A
+   0077 0D                 1871 	.db 0x0D
+   0078 00                 1872 	.db 0x00
+   0079                    1873 __str_1:
+   0079 0D                 1874 	.db 0x0D
+   007A 41 64 64 72 65 73  1875 	.ascii "Address received = 0x%s"
+        73 20 72 65 63 65
+        69 76 65 64 20 3D
+        20 30 78 25 73
+   0091 0A                 1876 	.db 0x0A
+   0092 00                 1877 	.db 0x00
+   0093                    1878 __str_2:
+   0093 0D                 1879 	.db 0x0D
+   0094 45 6E 74 65 72 20  1880 	.ascii "Enter valid address!"
+        76 61 6C 69 64 20
+        61 64 64 72 65 73
+        73 21
+   00A8 0A                 1881 	.db 0x0A
+   00A9 0D                 1882 	.db 0x0D
+   00AA 00                 1883 	.db 0x00
+   00AB                    1884 __str_3:
+   00AB 0D                 1885 	.db 0x0D
+   00AC 45 6E 74 65 72 20  1886 	.ascii "Enter valid data between 00 (Hex) to FF (Hex)."
+        76 61 6C 69 64 20
+        64 61 74 61 20 62
+        65 74 77 65 65 6E
+        20 30 30 20 28 48
+        65 78 29 20 74 6F
+        20 46 46 20 28 48
+        65 78 29 2E
+   00DA 0A                 1887 	.db 0x0A
+   00DB 0D                 1888 	.db 0x0D
+   00DC 50 72 65 73 73 20  1889 	.ascii "Press backs"
+        62 61 63 6B 73
+   00E7 70 61 63 65 20 28  1890 	.ascii "pace (followed by enter) to exit"
+        66 6F 6C 6C 6F 77
+        65 64 20 62 79 20
+        65 6E 74 65 72 29
+        20 74 6F 20 65 78
+        69 74
+   0107 0A                 1891 	.db 0x0A
+   0108 0D                 1892 	.db 0x0D
+   0109 00                 1893 	.db 0x00
+   010A                    1894 __str_4:
+   010A 0D                 1895 	.db 0x0D
+   010B 44 61 74 61 20 72  1896 	.ascii "Data received = 0x%s"
+        65 63 65 69 76 65
+        64 20 3D 20 30 78
+        25 73
+   011F 0A                 1897 	.db 0x0A
+   0120 00                 1898 	.db 0x00
+   0121                    1899 __str_5:
+   0121 0D                 1900 	.db 0x0D
+   0122 45 6E 74 65 72 20  1901 	.ascii "Enter valid data!"
+        76 61 6C 69 64 20
+        64 61 74 61 21
+   0133 0A                 1902 	.db 0x0A
+   0134 0D                 1903 	.db 0x0D
+   0135 00                 1904 	.db 0x00
+   0136                    1905 __str_6:
+   0136 0D                 1906 	.db 0x0D
+   0137 44 61 74 61 20 77  1907 	.ascii "Data written = 0x%x at location 0x%x"
+        72 69 74 74 65 6E
+        20 3D 20 30 78 25
+        78 20 61 74 20 6C
+        6F 63 61 74 69 6F
+        6E 20 30 78 25 78
+   015B 0A                 1908 	.db 0x0A
+   015C 00                 1909 	.db 0x00
+   015D                    1910 __str_7:
+   015D 0D                 1911 	.db 0x0D
+   015E 52 65 61 64 20 4D  1912 	.ascii "Read Mode Entered!"
+        6F 64 65 20 45 6E
+        74 65 72 65 64 21
+   0170 0A                 1913 	.db 0x0A
+   0171 0D                 1914 	.db 0x0D
+   0172 45 6E 74 65 72 20  1915 	.ascii "Enter valid address between 000 (Hex) t"
+        76 61 6C 69 64 20
+        61 64 64 72 65 73
+        73 20 62 65 74 77
+        65 65 6E 20 30 30
+        30 20 28 48 65 78
+        29 20 74
+   0199 6F 20 37 46 46 20  1916 	.ascii "o 7FF (Hex)."
+        28 48 65 78 29 2E
+   01A5 0A                 1917 	.db 0x0A
+   01A6 0D                 1918 	.db 0x0D
+   01A7 50 72 65 73 73 20  1919 	.ascii "Press backspace (followed by enter) to exit"
+        62 61 63 6B 73 70
+        61 63 65 20 28 66
+        6F 6C 6C 6F 77 65
+        64 20 62 79 20 65
+        6E 74 65 72 29 20
+        74 6F 20 65 78 69
+        74
+   01D2 0A                 1920 	.db 0x0A
+   01D3 0D                 1921 	.db 0x0D
+   01D4 00                 1922 	.db 0x00
+   01D5                    1923 __str_8:
+   01D5 0D                 1924 	.db 0x0D
+   01D6 28 56 61 6C 75 65  1925 	.ascii "(Values in HEX format)"
+        73 20 69 6E 20 48
+        45 58 20 66 6F 72
+        6D 61 74 29
+   01EC 0A                 1926 	.db 0x0A
+   01ED 0A                 1927 	.db 0x0A
+   01EE 00                 1928 	.db 0x00
+   01EF                    1929 __str_9:
+   01EF 0D                 1930 	.db 0x0D
+   01F0 00                 1931 	.db 0x00
+   01F1                    1932 __str_10:
+   01F1 3A                 1933 	.ascii ":"
+   01F2 00                 1934 	.db 0x00
+   01F3                    1935 __str_11:
+   01F3 0A                 1936 	.db 0x0A
+   01F4 0A                 1937 	.db 0x0A
+   01F5 0A                 1938 	.db 0x0A
+   01F6 00                 1939 	.db 0x00
+   01F7                    1940 __str_12:
+   01F7 48 65 78 20 44 75  1941 	.ascii "Hex Dump Mode Entered!"
+        6D 70 20 4D 6F 64
+        65 20 45 6E 74 65
+        72 65 64 21
+   020D 0A                 1942 	.db 0x0A
+   020E 0D                 1943 	.db 0x0D
+   020F 45 6E 74 65 72 20  1944 	.ascii "Enter valid start address between 00"
+        76 61 6C 69 64 20
+        73 74 61 72 74 20
+        61 64 64 72 65 73
+        73 20 62 65 74 77
+        65 65 6E 20 30 30
+   0233 30 20 28 48 65 78  1945 	.ascii "0 (Hex) to 7FF (Hex)."
+        29 20 74 6F 20 37
+        46 46 20 28 48 65
+        78 29 2E
+   0248 0A                 1946 	.db 0x0A
+   0249 0D                 1947 	.db 0x0D
+   024A 50 72 65 73 73 20  1948 	.ascii "Press backspace (followed by enter) t"
+        62 61 63 6B 73 70
+        61 63 65 20 28 66
+        6F 6C 6C 6F 77 65
+        64 20 62 79 20 65
+        6E 74 65 72 29 20
+        74
+   026F 6F 20 65 78 69 74  1949 	.ascii "o exit"
+   0275 0A                 1950 	.db 0x0A
+   0276 0D                 1951 	.db 0x0D
+   0277 00                 1952 	.db 0x00
+   0278                    1953 __str_13:
+   0278 0D                 1954 	.db 0x0D
+   0279 48 65 78 20 44 75  1955 	.ascii "Hex Dump Mode Entered!"
+        6D 70 20 4D 6F 64
+        65 20 45 6E 74 65
+        72 65 64 21
+   028F 0A                 1956 	.db 0x0A
+   0290 0D                 1957 	.db 0x0D
+   0291 45 6E 74 65 72 20  1958 	.ascii "Enter valid end address between 000"
+        76 61 6C 69 64 20
+        65 6E 64 20 61 64
+        64 72 65 73 73 20
+        62 65 74 77 65 65
+        6E 20 30 30 30
+   02B4 20 28 48 65 78 29  1959 	.ascii " (Hex) to 7FF (Hex)."
+        20 74 6F 20 37 46
+        46 20 28 48 65 78
+        29 2E
+   02C8 0A                 1960 	.db 0x0A
+   02C9 0D                 1961 	.db 0x0D
+   02CA 50 72 65 73 73 20  1962 	.ascii "Press backspace (followed by enter) to"
+        62 61 63 6B 73 70
+        61 63 65 20 28 66
+        6F 6C 6C 6F 77 65
+        64 20 62 79 20 65
+        6E 74 65 72 29 20
+        74 6F
+   02F0 20 65 78 69 74     1963 	.ascii " exit"
+   02F5 0A                 1964 	.db 0x0A
+   02F6 0D                 1965 	.db 0x0D
+   02F7 00                 1966 	.db 0x00
+   02F8                    1967 __str_14:
+   02F8 0D                 1968 	.db 0x0D
+   02F9 48 45 58 20 44 55  1969 	.ascii "HEX DUMP FOR EEPROM."
+        4D 50 20 46 4F 52
+        20 45 45 50 52 4F
+        4D 2E
+   030D 0A                 1970 	.db 0x0A
+   030E 0D                 1971 	.db 0x0D
+   030F 28 41 6C 6C 20 76  1972 	.ascii "(All values are in HEX FORMAT)"
+        61 6C 75 65 73 20
+        61 72 65 20 69 6E
+        20 48 45 58 20 46
+        4F 52 4D 41 54 29
+   032D 0A                 1973 	.db 0x0A
+   032E 00                 1974 	.db 0x00
+   032F                    1975 __str_15:
+   032F 0A                 1976 	.db 0x0A
+   0330 00                 1977 	.db 0x00
+   0331                    1978 __str_16:
+   0331 3A 20              1979 	.ascii ": "
+   0333 00                 1980 	.db 0x00
+   0334                    1981 __str_17:
+   0334 20 20              1982 	.ascii "  "
+   0336 00                 1983 	.db 0x00
+                           1984 	.area XINIT   (CODE)
+   0000                    1985 __xinit__count_value:
+   0000 00                 1986 	.db #0x00

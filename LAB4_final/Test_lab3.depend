@@ -1,0 +1,73 @@
+# depslib dependency file v1.0
+1492403959 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\main.c
+	"main.h"
+
+1492142811 c:\users\djdharmik\downloads\esd\lab3\test_lab3\definitions_main.h
+	<at89c51ed2.h>
+	<mcs51reg.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+	<math.h>
+	"I2C.h"
+
+1492141626 c:\users\djdharmik\downloads\esd\lab3\test_lab3\eeprom_i2c.h
+
+1492134609 c:\users\djdharmik\downloads\esd\lab3\test_lab3\i2c.h
+
+1492184441 c:\users\djdharmik\downloads\esd\lab3\test_lab3\main.h
+	<at89c51ed2.h>
+	<mcs51reg.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+	<math.h>
+	"UART.h"
+	"I2C.h"
+	"EEPROM_I2C.h"
+	"EEPROM_UI.h"
+	"IOExpander.h"
+	"LCD.h"
+	"LCD_TIMER.h"
+	"misc.h"
+	"UART.h"
+	"EEPROM_I2C.h"
+
+1492150252 c:\users\djdharmik\downloads\esd\lab3\test_lab3\uart.h
+
+1492184021 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\uart.c
+	"main.h"
+
+1492182640 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\eeprom_i2c.c
+	"main.h"
+
+1492134684 c:\users\djdharmik\downloads\esd\lab3\test_lab3\misc.h
+
+1492137498 c:\users\djdharmik\downloads\esd\lab3\test_lab3\eeprom_ui.h
+
+1492150782 c:\users\djdharmik\downloads\esd\lab3\test_lab3\ioexpander.h
+
+1492411169 c:\users\djdharmik\downloads\esd\lab3\test_lab3\lcd.h
+
+1492150782 c:\users\djdharmik\downloads\esd\lab3\test_lab3\lcd_timer.h
+
+1492184301 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\eeprom_ui.c
+	"main.h"
+
+1492182864 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\i2c.c
+	"main.h"
+
+1492183130 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\ioexpander.c
+	"main.h"
+
+1492414785 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\lcd.c
+	"main.h"
+
+1492183745 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\lcd_timer.c
+	"main.h"
+
+1492403008 source:c:\users\djdharmik\downloads\esd\lab3\test_lab3\misc.c
+	"main.h"
+

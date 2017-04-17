@@ -617,7 +617,7 @@ unsigned char I2C_Read_EEPROM(int word_address){
 
 unsigned char * I2C_Read_SEQ_EEPROM(int start_word_address, int end_word_address){
     unsigned char temp_read_data_array[2050];
-    int temp_num_bytes = 0, i=0;
+    unsigned int temp_num_bytes = 0, i=0;
     unsigned char temp_ack;
     temp_num_bytes = end_word_address - start_word_address;
     I2C_start();
@@ -632,6 +632,7 @@ unsigned char * I2C_Read_SEQ_EEPROM(int start_word_address, int end_word_address
         else{
             temp_read_data_array[i]=I2C_read(1);
         }
+       // delay_ms(1);
     }
 
     I2C_stop();
@@ -809,7 +810,7 @@ unsigned char hex_dump(){
       //  printf_tiny("\rhere1");
     }
     //printf_tiny("\rtemp2=%d\n", temp2);
-   // printf("Hello\n");
+  //  printf("\r%s\n",user_data);
     for(i=0; i<temp2; i++){
         temp = (unsigned int)user_addr_start;
         temp = temp + (i*16);
@@ -823,12 +824,27 @@ unsigned char hex_dump(){
         for(j=16*i; j<((i*16)+16); j++){
             my_print(*(user_data+j), 2);
             printf_tiny("  ");
+            //delay_ms(2);
             //printf("%02X  ",*(buffer[0].buf+j));
         }
         printf_tiny("\n");
     }
     printf_tiny("\n");
     return 0;
+}
+
+void eereset(){
+    unsigned char i;
+    I2C_start();
+    for(i=0; i<9; i++){
+        SDA = 1;
+        SCL = 1;
+        SCL = 0;
+      //  SCL = 1;
+    }
+    I2C_start();
+    I2C_stop();
+
 }
 
 void timer0_init(){
@@ -1371,6 +1387,7 @@ void status_IOE(){
 void print_menu() __critical{
 
     printf_tiny("\n\n\n\n\r");
+    printf_tiny("\r0:Press 0 to RESET EEPROM\n");
     printf_tiny("\r1:Press 1 Write To EEPROM\n");
     printf_tiny("\r2:Press 2 to Read from the EEPROM\n");
     printf_tiny("\r3:Press 3 to get the EEPROM HEX DUMP\n");
@@ -1460,6 +1477,9 @@ void main(){
         print_menu();
         temp = rx_data_char();
         switch(temp){
+        case '0':
+            eereset();
+            break;
         case '1':
             write_menu();
             break;
